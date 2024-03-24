@@ -1,10 +1,10 @@
 class Header extends HTMLElement {
-  constructor() {
-    super();
-  }
+    constructor() {
+	super();
+    }
 
-  connectedCallback() {
-    this.innerHTML = `
+    connectedCallback() {
+	this.innerHTML = `
       <style>
         html {
         margin:    0 auto;
@@ -23,7 +23,7 @@ class Header extends HTMLElement {
         </nav>
       </header>
     `;
-  }
+    }
 }
 
 customElements.define('header-component', Header);

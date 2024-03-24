@@ -1,5 +1,4 @@
 
-
 class Particle {
     constructor() {
 	this.pos = createVector( 0, 0 );
@@ -55,19 +54,19 @@ class Particle {
     edges( width, height ) {
 	if( this.pos.x > width ) {
 	    this.pos.x = 0;
-	     this.updatePrev();
+	    this.updatePrev();
 	}
 	if( this.pos.x < 0 ) {
 	    this.pos.x = width;
-	     this.updatePrev();
+	    this.updatePrev();
 	}
 	if( this.pos.y > height ) {
 	    this.pos.y = 0;
-	     this.updatePrev();
+	    this.updatePrev();
 	}
 	if( this.pos.y < 0 ) {
 	    this.pos.y = height;
-	     this.updatePrev();
+	    this.updatePrev();
 	}
     }
 }
@@ -99,8 +98,6 @@ function setup() {
 }
 
 function draw() {
-    //
-
     // colorMode(HSB, 100);
     // let hue = (m_counter * 100) % 100;
     // stroke( hue, 100, 100, 30 );
@@ -157,24 +154,10 @@ function updateParticles() {
     }
 }
 
-function restart() {
-    
-}
-
-function mouseMoved() {
-
-  return false;
-}
-
 function mouseClicked() {
-
     background( 190, 250, 255 );
     for( let i = 0; i < particleNum; i++ ) {
 	particles.push( new Particle() );
 	particles[i].setPos( random( 0, width ), random( 0, height ) );
     }
-}
-
-function keyPressed() {
-    
 }

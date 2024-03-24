@@ -1,8 +1,7 @@
 let m_counter = 0;
 
 function setup() {
-    // put setup code here
-   createCanvas( 900, 450);
+    createCanvas( 900, 450);
 }
 
 
@@ -16,10 +15,6 @@ function draw() {
     let ff = millis();
     for (let i = 0; i < 100; i++){
         let angle = map(i, 0, 100, 0, TWO_PI);
-	// let pt= point(400,400);
-        // let radius = 200 + noise(ff*0.0000001, cos(angle)*0.3, sin(angle)*0.3) * 100;
-        // pt += radius * point(cos(angle), sin(angle));
-
 	let x = width / 2;
 	let y = height / 2;
 	let n = noise( ff*0.001, cos(angle) * 0.3, sin(angle) * 0.3 ) * 2 - 1;

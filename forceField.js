@@ -1,6 +1,4 @@
 
-let m_counter = 0;
-
 class Grid {
     constructor(rowNum, colNum, w, h) {
         this.rows = rowNum;
@@ -51,14 +49,11 @@ class Grid {
 	for( let i = 0; i < this.columns + 1; i++ ) {
 	    for( let j = 0; j < this.rows; j++ ) {
 		noiseValue = noise( i * this.xFac, j * this.yFac, count );
-
-
+		
 		let hue = noiseValue * 100;
 		fill( hue, 100, 100, 100 );
-		// x += (this.cellWidth);
-		// y += (this.cellHeight);
 		circle( x +rectW/2, y + rectH/2, rectW * noiseValue);
-	
+		
 		x = (j * this.cellWidth);
 	    }
 	    y =  (i * this.cellHeight);
@@ -67,15 +62,9 @@ class Grid {
 
 }
 
-///////////////////////////////////////////////////////////////////////////7
-//////////////////////////////////////////////////////////////////////////
-
-
-///////////////////////////////////////////////////////////////////////////7
 //////////////////////////////////////////////////////////////////////////
 
 const grid = new Grid(50, 25, 900, 450);
-var lastTime = 0;
 
 function setup() {
     createCanvas(900, 450);
@@ -84,16 +73,11 @@ function setup() {
 }
 
 function draw() {
-
     background(100, 0, 10);
     grid.draw();
-    
-    m_counter++;
 }
 
 function mouseMoved() {
     grid.setXFac( mouseX / width );
     grid.setYFac( mouseY / height );
-  // prevent default
-  return false;
 }

@@ -8,7 +8,7 @@ class Star {
 	this.y = y;
 
 	this.died = false;
-	this.lifeTime = 1200;
+	this.lifeTime = 1800;
 	this.dLife = 9;
 	this.bumpSpeed = 0.6;
 	this.dFade = 1.4;
@@ -23,10 +23,11 @@ class Star {
 	push();
 	if( this.lifeTime > 0 ) {
 	    fill( 200 );
-	    translate( 0, 0, this.lifeTime );
+	    translate( 0, 0, this.lifeTime - 1200);
 	    circle( this.x, this.y, 6 );
 	    this.lifeTime -= this.dLife;
 	} else {
+	    this.death = true;
 	    noFill();
 	    translate( 0, 0, this.lifeTime + 0 );
 	    var colVal = 255 + this.lifeTime;
@@ -44,8 +45,7 @@ class Star {
 }
 
 function setup() {
-    // put setup code here
-    frameRate( 60 );
+    frameRate( 30 );
     createCanvas( 900, 450, WEBGL);
     background( 10 );
 }
@@ -55,8 +55,7 @@ function draw() {
     background( 10 );
 
     push();
-    // translate( width / 2, height / 2 );
-    rotateZ( m_counter / 100 );
+    rotateZ( m_counter / 300 );
     if( random( 0, 100) > 40 ) {
 	stars.push( new Star( random( -width / 1, width / 1 ), random( -height / 1, height / 1 ) ) );
     }
@@ -65,7 +64,6 @@ function draw() {
 	stars[ i ].draw();
 	if( stars[i].isDead() ) {
 	    stars.splice( i, 1 );
-	    console.log( "kill" );
 	}
     }
     pop()

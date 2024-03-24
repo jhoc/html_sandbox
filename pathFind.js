@@ -120,8 +120,7 @@ class Grid {
 ///////////////////////////////////////////////////////////////////////////7
 //////////////////////////////////////////////////////////////////////////
 class Cell {
-    // Row and Column index of its parent
-    // Note that 0 <= i <= ROW-1 & 0 <= j <= COL-1
+
     constructor() {
         this.parent_i = 0;
         this.parent_j = 0;
@@ -204,12 +203,10 @@ class AStarSearch {
     }
 
     tracePath(cells) {
-        // console.log("The Path is ");
         let row = this.grid.end()[0];
         let col = this.grid.end()[1];
 
         let Path = [];
-        // console.log("The Path is " + row + ", " + col );
         while (!(cells[row][col].parent_i == row && cells[row][col].parent_j == col)) {
 	    if(cells[row][col].parent_i == this.grid.start()[0] && cells[row][col].parent_j == this.grid.start()[1]) {
 		return;
@@ -221,19 +218,6 @@ class AStarSearch {
             col = temp_col;
 	    this.grid.addToPath( row, col, color( 210, 90, 200, 250 ) );
         }
-
-        // Path.push([row, col]);
-        // while (Path.length > 0) {
-        //     let p = Path[0];
-        //     Path.shift();
-
-        //     if (p[0] == 2 || p[0] == 1) {
-        //         console.log("-> (" + p[0] + ", " + (p[1] - 1) + ")");
-        //     }
-        //     else console.log("-> (" + p[0] + ", " + p[1] + ")");
-        // }
-
-        // return;
     }
 
 
@@ -307,7 +291,7 @@ class AStarSearch {
             return false;
         }
 
-         let i, j;
+        let i, j;
 
         // while (this.openList.size > 0) {
 	if( this.openList.size > 0 ) {
@@ -319,7 +303,7 @@ class AStarSearch {
             // Add this vertex to the closed list
             i = p[1][0];
             j = p[1][1];
-	// this.grid.addToPath( i, j );
+	    // this.grid.addToPath( i, j );
 
 	    this.closedList[i][j] = true;
 
@@ -398,7 +382,7 @@ function setup() {
 
     background(200);
     grid.setBlocks();
- 
+    
     astar = new AStarSearch(grid)
     astar.search();
 }
@@ -410,8 +394,6 @@ function draw() {
 
     if( found == false && millis() - lastTime > 20 ) {
 	found = astar.search();
-	
-	// console.log( found );
 	
 	if( astar.hasNoSolution() == true ) {
 	    if( millis() - lastTime > 1000 ) {

@@ -1,10 +1,8 @@
 let m_counter = 0;
 var circ = [];
-var num = 200;
-
+var num = 80;
 
 function setup() {
-    // put setup code here
     createCanvas( 900, 450);
 
     for (let i = 0; i < num; i++){
@@ -38,7 +36,6 @@ function draw() {
 
 	line( x1, y1, x2, y2 );
 	circle( x1, y1, 3 );
-
     }
 
     m_counter += 0.01;

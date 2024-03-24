@@ -1,5 +1,3 @@
-let m_counter = 0;
-
 
 class Rainbow {
     constructor( colorNum, w, h ) {
@@ -32,7 +30,6 @@ const rb1 = new Rainbow( 50, 100, 4000 );
 const rb2 = new Rainbow( 10, 100, 800 );
 
 function setup() {
-    // put setup code here
     createCanvas( windowWidth, windowHeight);
 }
 
@@ -41,11 +38,7 @@ function draw() {
 
     noStroke();
 
-     rb1.setPos( 400, 0 );
-     rb1.draw();
+    rb1.setPos( 400, 0 );
+    rb1.draw();
 
-     //rb2.setPos( 180, 100 );
-     //rb2.draw();
-
-    m_counter++;
 }
