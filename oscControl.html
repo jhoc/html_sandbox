@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<head>
+  <title>OSC Ctrl</title>
+  <style>
+    .content_centered {
+      display: grid;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      min-height: 100vh;
+    }
+    .button_grid {
+      display: flex;
+      width: auto;
+      height: auto;
+    }
+      .row {
+        display: inline-block;
+        max-height: max-content;
+        min-height: min-content;
+        margin: 1px 1px;
+      }
+    .button {
+      background-color: #555555;
+      border: none;
+      border-radius: 8px;
+      color: rgb(255, 255, 255);
+      padding: 16px 24px;
+      margin: 4px 4px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+    }
+
+    .button_grid {
+      background-color: #04AA6D;
+      border: none;
+      border-radius: 2px;
+      color: rgb(40, 185, 130);
+      width: 96px;
+      height: 96px;
+      
+      margin: 0px 0px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+    }
+
+    .volume-slider {
+      -webkit-appearance: slider-vertical;
+      writing-mode: bt-lr;
+      height: 75px;
+      margin: 0 10px;
+    }
+
+    /* The popup form - hidden by default */
+    .form-popup {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      border: 3px solid #f1f1f1;
+      z-index: 9;
+    }
+    /* Add styles to the form container */
+.form-container {
+  max-width: 400px;
+  padding: 10px;
+  background-color: white;
+}
+
+/* Full-width input fields */
+.form-container input[type=text], .form-container input[type=password] {
+  width: 90%;
+  padding: 15px;
+  margin: 5px 0 22px 0;
+  border: none;
+  background: #f1f1f1;
+}
+.form-container input[type=color], .form-container input[type=password] {
+  width: 100%;
+  padding: 0px;
+  margin: 0px 0 0px 0;
+  border: none;
+  background: #f1f1f1;
+}
+
+  </style>
+</head>
+
+<body>
+
+  <div class="top_row">
+    <button class="button" id="id_edit">Edit</button>
+    <button class="button" id="id_add">+</button>
+    <button class="button" id="id_remove">-</button>
+    <button class="button" id="id_clear">Clear</button>
+  </div>
+
+
+  
+  <div class="content_centered">
+    <table id="id_button_grid" cellspacing="2">
+    </table>
+    </div>
+  </div>
+
+  <div class="form-popup" id="myForm">
+    <form class="form-container">
+      <h1>Button Parameters</h1>
+  
+      <label for="button_text"><b>Text:</b></label>
+      <input type="text" placeholder="Name" id="id_form_name">
+  
+      <label for="button_osc_message"><b>Osc Message</b></label>
+      <input type="text" placeholder="/msg" id="id_form_msg" > 
+  
+      <label for="favcolor"><b>Color</b></label>
+      <input type="color" id="id_form_color" value="#aa00dd">
+
+      <button type="button" class="button" id="id_form_delete">Delete</button>
+      <button type="button" class="button" onclick="closeForm()">Close</button>
+    </form>
+  </div>
+
+<!-- vvvvvvvvvvvvvvvvvvvvvvvvvv SCRIPT vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv -->
+<script src="https://cdn.jsdelivr.net/gh/adzialocha/osc-js/lib/osc.js"></script>
+  <script type="text/javascript">
+
+    console.log("start osc")
+    var osc = new OSC();
+    osc.open( {
+  host: 'localhost',    // @param {string} Hostname of WebSocket server
+  port: 8080            // @param {number} Port of WebSocket server
+    });
+  //  osc.open({host:'http://192.168.1.6', port: '12345'}) //connect to server that was created by the bridge
+
+    function button_parameters() {
+      this.text = "Button";
+      this.msg = "Message";
+      this.color = null;
+    }
+    var buttonData = [];
+    var buttonGridColor = "#04AA6D";
+    var editMode = false;
+    var lastClickedButton = -1;
+  
+    var retrievedObject = localStorage.getItem('buttonData');
+    retrievedObject = JSON.parse(retrievedObject);
+    if( retrievedObject != null && retrievedObject.length != 0 ) {
+      //console.log('start retrieve buttonData: ', JSON.parse(retrievedObject), retrievedObject.length );
+      console.log('start retrieve buttonData: ', retrievedObject, retrievedObject.length );
+      for( var i = 0; i < retrievedObject.length; i++ ) {
+        buttonData.push( retrievedObject[i] );
+        console.log('start retrieve buttonData: ', "addButton " );  
+      }
+    } else {
+      var buttonNum = 4;
+      for( var i = 0; i < buttonNum; i++ ) {
+        var item = new button_parameters(); // note the "new" keyword here
+        item.text = i;
+        item.msg = null;
+        item.color = buttonGridColor;
+        buttonData.push( item );
+      }
+      localStorage.setItem('buttonData', JSON.stringify(buttonData) );
+      console.log('start storebuttonData: ', JSON.stringify(buttonData) );
+    }
+    layoutButtons();
+
+   
+    document.getElementById("id_edit").addEventListener('click', () => {
+      editMode = !editMode;
+      localStorage.setItem('editMode', JSON.stringify(editMode) );
+      if( !editMode ) closeForm();
+      var color = '';
+      if ( editMode ) {
+        if( lastClickedButton >= 0 && lastClickedButton < buttonData.length ) {
+          buttonGridClick( lastClickedButton );
+        }
+        color = "red";
+      } 
+      document.getElementById("id_edit").style.backgroundColor = color; // this anstelle von getElement
+      
+    });
+    
+    document.getElementById("id_add").addEventListener('click', () => {
+      var item = new button_parameters(); // note the "new" keyword here
+      item.text = buttonData.length;
+      item.msg = null;
+      item.color = buttonGridColor;
+      buttonData.push( item );
+      localStorage.setItem('buttonData', JSON.stringify(buttonData));
+      layoutButtons();
+    });
+
+    document.getElementById("id_clear").addEventListener('click', () => {
+      console.log( "Clear" );
+      localStorage.clear();
+      location.reload();
+      //layoutButtons();
+     
+    });
+
+    document.getElementById("id_form_name").addEventListener('input', function (evt) {
+      if( lastClickedButton < 0 || lastClickedButton >= buttonData.length ) return;
+      buttonData[ lastClickedButton ].text = document.getElementById("id_form_name" ).value;
+      document.getElementById(`id_button${lastClickedButton}`).innerHTML = buttonData[ lastClickedButton ].text;
+    });
+
+    document.getElementById("id_form_msg").addEventListener('input', function (evt) {
+      if( lastClickedButton < 0 || lastClickedButton >= buttonData.length ) return;
+      buttonData[ lastClickedButton ].text = document.getElementById("id_form_msg" ).value;
+    });
+
+    document.getElementById("id_form_color").addEventListener('input', function (evt) {
+      if( lastClickedButton < 0 || lastClickedButton >= buttonData.length ) return;
+      buttonData[ lastClickedButton ].color = document.getElementById("id_form_color" ).value;
+     document.getElementById(`id_button${lastClickedButton}`).backgroundColor = buttonData[ lastClickedButton ].color;
+    });
+
+    
+
+    document.getElementById("id_form_delete").addEventListener('click', () => {
+      if( buttonData == null || buttonData.length == 0 || lastClickedButton < 0 ) {
+        return;
+      }
+      buttonData.splice( lastClickedButton, 1 );
+      localStorage.setItem('buttonData', JSON.stringify(buttonData));
+      layoutButtons();
+      if( lastClickedButton >= buttonData.length ) {
+        lastClickedButton = 0;
+      }
+      if( buttonData == null || buttonData.length == 0 ) {
+        lastClickedButton = -1;
+        closeForm();
+        return;
+      }
+      buttonGridClick( lastClickedButton );
+    } );
+
+    function sendOSC(msg) {
+      console.log(msg);
+     // var message = new OSC.Message('/test/', 2);
+     // osc.send(message);  //send message on click
+    };
+
+
+    function openForm( btn_name, btn_msg, btn_color) {
+      document.getElementById("myForm").style.display = "block";
+     // document.getElementById("editForm_name").setAttribute("name", btn_name)
+      document.getElementById("id_form_name").value = btn_name;
+      document.getElementById("id_form_msg").value = btn_msg;
+      document.getElementById("id_form_color").value = btn_color;
+    }
+
+    function closeForm() {
+      console.log("close form");
+      localStorage.setItem('buttonData', JSON.stringify(buttonData));
+      document.getElementById("myForm").style.display = "none";
+      resetButtonColors();
+    }
+
+    function addButton(index, title, size) {
+      var btn = document.createElement("button");
+      btn.setAttribute("class", "button_grid");
+      btn.setAttribute("name", `id_button${index}`);
+      btn.setAttribute("id", `id_button${index}`);
+      btn.style.width = size + 'px';
+      btn.style.height = size + 'px';
+      btn.style.background = buttonData[index].color;
+      btn.setAttribute("onclick", `buttonGridClick(${index})`);
+      btn.innerHTML = title;
+      return btn;
+    }
+
+    function layoutButtons() {
+      const elem = document.getElementById("id_button_grid");
+      while (elem.hasChildNodes()) { // remove all children
+        elem.removeChild(elem.firstChild);
+      } 
+      var rows = Math.ceil( Math.sqrt( buttonData.length ) );
+      var width = window.innerWidth;
+      var buttonSize = width / rows;
+      buttonSize = Math.min( window.innerHeight / (rows + 2), buttonSize ); // hack - for upper row(edit,+,clear)
+      buttonSize = Math.min( buttonSize, 128 );
+      var rowCount = 0;
+      var row = null;
+      for( var i = 0; i < buttonData.length; i++ ) {
+        if( i % rows == 0 ) { // create row
+          row = document.createElement("tr");
+          elem.appendChild( row );
+        }
+        var td = document.createElement("td");  
+        const btn = addButton( i, buttonData[i].text, buttonSize );
+        td.appendChild(btn);
+        row.appendChild( td );
+      }
+
+    }
+
+    function buttonGridClick(index) {
+      lastClickedButton = index;
+      localStorage.setItem('lastClickedButton', JSON.stringify(lastClickedButton));
+      if( editMode ) {
+        openForm( buttonData[ index ].text, buttonData[ index ].msg, buttonData[ index ].color );
+        resetButtonColors();
+        document.getElementById(`id_button${index}`).style.backgroundColor = "red";
+        sendOSC( "edit " + index);
+        return;
+      }
+      sendOSC("Button " + index);
+    }
+
+    function resetButtonColors() {
+      for( var i = 0; i < buttonData.length; i++ ) {
+        document.getElementById(`id_button${i}`).style.backgroundColor = buttonData[i].color;
+      }
+    }
+  </script>
+
+</body>
+
+</html>
