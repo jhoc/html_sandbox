@@ -8,7 +8,10 @@ var draws = 1;
 var c2;
 
 function setup() {
-    createCanvas(900, 450);
+    let w = 900;
+    w = min( w, windowWidth );
+    createCanvas( w, w / 2 );
+
     init();
 }
 
@@ -60,3 +63,8 @@ function drawG() {
 
 }
 
+function windowResized() {
+    let w = 900;
+    w = min( w, windowWidth );
+    resizeCanvas( w, w / 2 );
+}

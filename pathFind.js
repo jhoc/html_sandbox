@@ -373,13 +373,16 @@ class AStarSearch {
 ///////////////////////////////////////////////////////////////////////////7
 //////////////////////////////////////////////////////////////////////////
 
-const grid = new Grid(50, 25, 900, 450);
+var grid;// = new Grid(50, 25, 900, 450);
 var astar;
 var lastTime = 0;
 var found = false;
 function setup() {
-    createCanvas(900, 450);
-
+    let w = 900;
+    w = min( w, windowWidth );
+    createCanvas( w, w / 2 );
+    grid = new Grid(50, 25, w, w / 2);
+    
     background(200);
     grid.setBlocks();
     
@@ -425,5 +428,19 @@ function mouseClicked() {
 }
 
 function keyPressed() {
+    astar.search();
+}
+
+function windowResized() {
+    let w = 900;
+    w = min( w, windowWidth );
+    resizeCanvas( w, w / 2 );
+
+    grid = new Grid(50, 25, w, w / 2);
+    
+    background(200);
+    grid.setBlocks();
+    
+    astar = new AStarSearch(grid)
     astar.search();
 }

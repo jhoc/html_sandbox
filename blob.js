@@ -1,7 +1,9 @@
 let m_counter = 0;
 
 function setup() {
-    createCanvas( 900, 450);
+    let w = 900;
+    w = min( w, windowWidth );
+    createCanvas( w, w / 2 );
 }
 
 
@@ -28,4 +30,11 @@ function draw() {
 
     m_counter++;
 
+}
+
+
+function windowResized() {
+    let w = 900;
+    w = min( w, windowWidth );
+    resizeCanvas( w, w / 2 );
 }

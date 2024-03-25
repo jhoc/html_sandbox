@@ -46,7 +46,9 @@ class StripeOscMeetSineOff {
 const stripeSine2= new StripeOscMeetSineOff( 10, 4 );
 
 function setup() {
-    createCanvas( windowWidth, windowHeight);
+    let w = 900;
+    w = min( w, windowWidth );
+    createCanvas( w, w / 2 );
 
     stripeSine2.setPos( 350, 100 );
     stripeSine2.setRect( 200, 500 );
@@ -128,13 +130,19 @@ function draw() {
 
     const stripeSine1 = new StripeOscMeetSineOff( 10, 4 );
     stripeSine1.setPos( 0, 0 );
-    stripeSine1.setRect( 445, 400 );
+    stripeSine1.setRect( width / 2, height );
     stripeSine1.draw( m_counter );
 
     fill( 50, 80, 255, 100 );
-    stripeSine2.setPos( 455, 0 );
-    stripeSine2.setRect( 445, 400 );
+    stripeSine2.setPos( width / 2, 0 );
+    stripeSine2.setRect( width / 2, height );
     stripeSine2.draw( m_counter );
 
     m_counter++;
+}
+
+function windowResized() {
+    let w = 900;
+    w = min( w, windowWidth );
+    resizeCanvas( w, w / 2 );
 }

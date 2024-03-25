@@ -2,12 +2,14 @@
 var counter = 0;
 
 function setup() {
-    createCanvas(900, 400);
+    let w = 900;
+    w = min( w, windowWidth );
+    createCanvas( w, w / 2 );
 }
 
 function draw() {
     background( 70, 70, 185, 30 )    
-    lFunc( width / 2, height, 90, 0.8, -PI/2, PI/18, 7);
+    lFunc( width / 2, height, height / 4.2, 0.8, -PI/2, PI/18, 7);
     counter++;
 }
 
@@ -40,4 +42,10 @@ function lFunc( _x, _y, _l, _s, _a, _b, n){
 	lFunc(endX, endY, length, _s, alpha + _b + off1, _b, n);
 	lFunc(endX, endY, length, _s, alpha - _b + off2, _b, n);
     }
+}
+
+function windowResized() {
+    let w = 900;
+    w = min( w, windowWidth );
+    resizeCanvas( w, w / 2 );
 }

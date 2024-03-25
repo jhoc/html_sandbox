@@ -46,7 +46,10 @@ class Star {
 
 function setup() {
     frameRate( 30 );
-    createCanvas( 900, 450, WEBGL);
+
+    let w = 900;
+    w = min( w, windowWidth );
+    createCanvas( w, w / 2, WEBGL);
     background( 10 );
 }
 
@@ -68,4 +71,10 @@ function draw() {
     }
     pop()
     m_counter++;
+}
+
+function windowResized() {
+    let w = 900;
+    w = min( w, windowWidth );
+    resizeCanvas( w, w / 2, WEBGL );
 }

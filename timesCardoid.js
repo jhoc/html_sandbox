@@ -3,13 +3,15 @@ var circ = [];
 var num = 80;
 
 function setup() {
-    createCanvas( 900, 450);
+    let w = 900;
+    w = min( w, windowWidth );
+    createCanvas( w, w / 2 );
 
     for (let i = 0; i < num; i++){
         let angle = map(i, 0, num, 0, TWO_PI);
 	let x = width / 2;
 	let y = height / 2;
-	let radius = 200;
+	let radius = height / 2.3;
 	x += radius * cos( angle );
 	y += radius * sin( angle );
 	circ.push( [ x, y ] );
@@ -41,4 +43,22 @@ function draw() {
     m_counter += 0.01;
 
 
+}
+
+function windowResized() {
+    let w = 900;
+    w = min( w, windowWidth );
+    resizeCanvas( w, w / 2 );
+
+    circ = [];
+    for (let i = 0; i < num; i++){
+        let angle = map(i, 0, num, 0, TWO_PI);
+	let x = width / 2;
+	let y = height / 2;
+	let radius = height / 2.3;
+	x += radius * cos( angle );
+	y += radius * sin( angle );
+	circ.push( [ x, y ] );
+        vertex( x, y );
+    }
 }

@@ -27,7 +27,6 @@ class Rainbow {
 
 
 const rb1 = new Rainbow( 50, 100, 4000 );
-const rb2 = new Rainbow( 10, 100, 800 );
 
 function setup() {
     createCanvas( windowWidth, windowHeight);
@@ -38,7 +37,14 @@ function draw() {
 
     noStroke();
 
-    rb1.setPos( 400, 0 );
+    rb1.setPos( width / 2 - 50, 0 );
     rb1.draw();
 
 }
+
+function windowResized() {
+    let w = 900;
+    w = min( w, windowWidth );
+    resizeCanvas( w, 4000 );
+}
+

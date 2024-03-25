@@ -11,7 +11,9 @@ var s = 20;
 var f = 0;
 var dW =  width / (s - 1);
 function setup() {
-    createCanvas(900, 400);
+    let w = 900;
+    w = min( w, windowWidth );
+    createCanvas( w, w / 2 );
 }
 
 function draw() {
@@ -42,4 +44,8 @@ function draw() {
     }
 }  
 
-
+function windowResized() {
+    let w = 900;
+    w = min( w, windowWidth );
+    resizeCanvas( w, w / 2 );
+}

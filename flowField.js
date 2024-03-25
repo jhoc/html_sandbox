@@ -81,7 +81,9 @@ var cellSize = 20;
 var particleNum = 80;
 
 function setup() {
-    createCanvas(900, 450);
+    let w = 900;
+    w = min( w, windowWidth );
+    createCanvas( w, w / 2 );
     background( 190, 250, 255 );
 
     columns = Math.floor( width / cellSize );
@@ -160,4 +162,10 @@ function mouseClicked() {
 	particles.push( new Particle() );
 	particles[i].setPos( random( 0, width ), random( 0, height ) );
     }
+}
+
+function windowResized() {
+    let w = 900;
+    w = min( w, windowWidth );
+    resizeCanvas( w, w / 2 );
 }

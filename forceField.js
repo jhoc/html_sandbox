@@ -66,8 +66,10 @@ class Grid {
 
 const grid = new Grid(50, 25, 900, 450);
 
-function setup() {
-    createCanvas(900, 450);
+function setup() {    
+    let w = 900;
+    w = min( w, windowWidth );
+    createCanvas( w, w / 2 );
 
     background(100);
 }
@@ -80,4 +82,10 @@ function draw() {
 function mouseMoved() {
     grid.setXFac( mouseX / width );
     grid.setYFac( mouseY / height );
+}
+
+function windowResized() {
+    let w = 900;
+    w = min( w, windowWidth );
+    resizeCanvas( w, w / 2 );
 }
