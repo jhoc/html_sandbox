@@ -5,18 +5,15 @@ function setup() {
 }
 
 function windowResized() {
-     console.log( "Resize" );
     let w = 900;
-    w = min( w, windowWidth );
+    w = min( w, windowWidth - 8 );
     if( w < 900 ) {
 	const elem = document.getElementById("scriptFrames");
-	let divChildren = elem.childNodes;
+	let divChildren = elem.children;
+
 	for (var i=0; i<divChildren.length; i++) {
-	    if (divChildren.hasOwnProperty( divChildren[ i ] )) {
-		divChildren[ i ].style.width = w + 'px';
-		divChildren[ i ].style.height = w / 2  + 'px';
-		// iFrames[i].style.height = divChildren[ i ].contentWindow.document.body.offsetHeight + 'px';}
-	    }
+	    divChildren[ i ].style.width = w + 'px';
+	    divChildren[ i ].style.height = w / 2  + 'px';
 	}
     }
     

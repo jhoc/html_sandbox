@@ -64,13 +64,13 @@ class Grid {
 
 //////////////////////////////////////////////////////////////////////////
 
-const grid = new Grid(50, 25, 900, 450);
+var grid = new Grid(50, 25, 900, 450);
 
 function setup() {    
     let w = 900;
     w = min( w, windowWidth );
     createCanvas( w, w / 2 );
-
+    grid = new Grid(50, 25, w, w / 2);
     background(100);
 }
 
@@ -86,6 +86,8 @@ function mouseMoved() {
 
 function windowResized() {
     let w = 900;
-    w = min( w, windowWidth );
+    w = min( w, windowWidth - 8 );
+    grid = new Grid(50, 25, w, w / 2);
+    background(100);
     resizeCanvas( w, w / 2 );
 }

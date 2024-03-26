@@ -167,11 +167,14 @@ function mouseClicked() {
     }
 }
 
+function aTouch(touch_x, touch_y) {
+    mouseClicked();
+}
+
 function windowResized() {
     let w = 900;
-    w = min( w, windowWidth );
+    w = min( w, windowWidth - 8 );
     resizeCanvas( w, w / 2 );
 
-
-    document.getElementById('content').style.height = '500px';
+    background( 190, 250, 255 );
 }

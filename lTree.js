@@ -46,6 +46,6 @@ function lFunc( _x, _y, _l, _s, _a, _b, n){
 
 function windowResized() {
     let w = 900;
-    w = min( w, windowWidth );
+    w = min( w, windowWidth - 8 );
     resizeCanvas( w, w / 2 );
 }

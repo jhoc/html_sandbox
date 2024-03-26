@@ -47,7 +47,7 @@ function draw() {
 
 function windowResized() {
     let w = 900;
-    w = min( w, windowWidth );
+    w = min( w, windowWidth - 8 );
     resizeCanvas( w, w / 2 );
 
     circ = [];

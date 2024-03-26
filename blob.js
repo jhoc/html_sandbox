@@ -20,7 +20,7 @@ function draw() {
 	let x = width / 2;
 	let y = height / 2;
 	let n = noise( ff*0.001, cos(angle) * 0.3, sin(angle) * 0.3 ) * 2 - 1;
-	let radius = 100 + n * 100;
+	let radius = (height / 4) + n * 100;
 	x += radius * cos( angle );
 	y += radius * sin( angle );
 
@@ -35,6 +35,6 @@ function draw() {
 
 function windowResized() {
     let w = 900;
-    w = min( w, windowWidth );
+    w = min( w, windowWidth - 8 );
     resizeCanvas( w, w / 2 );
 }
