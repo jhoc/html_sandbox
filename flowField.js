@@ -83,7 +83,10 @@ var particleNum = 80;
 function setup() {
     let w = 900;
     w = min( w, windowWidth );
+
+    // document.getElementById('content').style.height = '500px';
     createCanvas( w, w / 2 );
+
     background( 190, 250, 255 );
 
     columns = Math.floor( width / cellSize );
@@ -168,4 +171,7 @@ function windowResized() {
     let w = 900;
     w = min( w, windowWidth );
     resizeCanvas( w, w / 2 );
+
+
+    document.getElementById('content').style.height = '500px';
 }

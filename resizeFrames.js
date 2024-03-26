@@ -15,6 +15,7 @@ function windowResized() {
 	    if (divChildren.hasOwnProperty( divChildren[ i ] )) {
 		divChildren[ i ].style.width = w + 'px';
 		divChildren[ i ].style.height = w / 2  + 'px';
+		// iFrames[i].style.height = divChildren[ i ].contentWindow.document.body.offsetHeight + 'px';}
 	    }
 	}
     }
