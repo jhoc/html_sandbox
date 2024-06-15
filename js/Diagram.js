@@ -25,9 +25,9 @@ export class Diagram {
 
         this.xPos = 0;
         this.yPos = 0;
-        this.fretDelta = 25 / window.devicePixelRatio;
+        this.fretDelta = 50 / window.devicePixelRatio;
         this.stringDelta = 32 / window.devicePixelRatio;
-        this.fingerWidth = 6 / window.devicePixelRatio;
+        this.fingerWidth = 12 / window.devicePixelRatio;
          document.getElementById("debug-div").innerHTML = window.devicePixelRatio;
         this.fingerColorCustom = '#AAFFDD';
         this.fingerColorRoot = '#FF5555';
