@@ -42,11 +42,15 @@ canvas {
     top: 0px;
 }
 
-
-
 #diaList-diagramSelector {
   /* display: '';  */
   position: absolute;
     left: 0px;
     top: 0px;
+}
+
+
+#debug-div {
+  position: absolute;
+  bottom: 0;
 }
