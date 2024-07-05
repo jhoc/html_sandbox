@@ -1,4 +1,5 @@
 const template = document.createElement('template');
+///////deprecated, use genericMenuBar.ts
 template.innerHTML = `
 <style>
 .hamburger-menu{

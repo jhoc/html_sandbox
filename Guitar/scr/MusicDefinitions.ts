@@ -77,7 +77,7 @@ export {
     Instrument
 };
 
-class Intervall {
+export class Intervall {
     m_name: string;
     m_halfsteps: number;
     constructor( _name: string, _halfsteps: number ) {
@@ -175,7 +175,7 @@ export {
 export class IntervallArray {
     m_index: number;
     m_name: string;
-    m_intervall;
+    m_intervall: Intervall[];
     constructor( _name: string, _array: Intervall[] ) {
         this.m_index = -1;
         this.m_name = _name;
@@ -204,15 +204,19 @@ export class IntervallArray {
     }
 }
 
+export enum ScaleFingering{ ECONOMIC = "Economic", THREEPERSTRING = "3 per String" };
+export enum FingeringType{ SCALE = "Scale", CHORD = "Chord" };
 export class ChordFingering {
     m_index: number;
     m_name: string;
     m_fingering: number[];
+m_type: FingeringType;
 
-    constructor( _name: string , _array: number[] ) {
+    constructor( _name: string , _array: number[], _type: FingeringType ) {
         this.m_index = -1;
         this.m_name = _name;
         this.m_fingering = _array;
+        this.m_type = _type;
     }
 
     setIndex( _i: number ) : void {
@@ -234,6 +238,10 @@ export class ChordFingering {
         if( this.m_fingering[_i] == undefined ) return null;
         return this.m_fingering[_i];
     }
+
+    getType() : FingeringType {
+return this.m_type;
+    }
 }
 
 class MusicData {
@@ -247,8 +255,8 @@ class MusicData {
     m_rootArray : IntervallArray;
     m_chordFingering : ChordFingering[] = [];
     private m_chordFingeringIndex : number = 0;
-    m_scaleFingering : string[] = [];
-    m_scaleFingeringIndex : number = 0;
+    m_scaleFingering : ScaleFingering[] = [];
+    // m_scaleFingeringIndex : number = 0;
 
     constructor() {
         // this.m_instrument = [];
@@ -266,6 +274,9 @@ class MusicData {
         // this.m_chordFingering = [];
         // this.m_chordFingeringIndex = 0;
         // this.m_scaleFingering = [];
+
+        this.m_scaleFingering.push( ScaleFingering.ECONOMIC );
+        this.m_scaleFingering.push( ScaleFingering.THREEPERSTRING );
     }
 
     rootArray() : IntervallArray {
@@ -378,6 +389,8 @@ class MusicData {
         if( this.m_chordFingering[_i] == undefined ) return null;
         return this.m_chordFingering[_i];
     }
+
+    
     chordFingeringFromName( _name: string ) : ChordFingering | null {
         for (var i = 0; i < this.m_chordFingering.length; i++) {
             if (_name == this.m_chordFingering[i]!.name()) {
@@ -399,16 +412,43 @@ class MusicData {
         }
     }
 
-    scaleFingering() : string[] {
+    scaleFingering() : ScaleFingering[] {
         return this.m_scaleFingering;
     }
-    scaleFingeringAt( _i: number ) : string | null {
+    scaleFingeringAt( _i: number ) : ScaleFingering | null {
         if( this.m_scaleFingering[_i] == undefined ) return null;
         return this.m_scaleFingering[_i];
     }
-    addscaleFingering( _fing: string ) : void {
-        // _fing.setIndex(this.m_scaleFingeringIndex++);
-        this.m_scaleFingering.push(_fing);
+    scaleFingeringIndexFromName( _name: string ) : number {
+        for (var i = 0; i < this.m_scaleFingering.length; i++) {
+            // console.log( "scalFIngFromName", i, _name, this.m_scaleFingering[i]?.toString() );
+            if (_name == this.m_scaleFingering[i]?.toString() ) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    scaleFingeringFromName( _name: string ) : ScaleFingering | null {
+        for (var i = 0; i < this.m_scaleFingering.length; i++) {
+            // console.log( "scalFIngFromName", i, _name, this.m_scaleFingering[i]?.toString() );
+            if (_name == this.m_scaleFingering[i]?.toString() ) {
+                return this.m_scaleFingering[i]!;
+            }
+        }
+        return null;
+    }
+    // addscaleFingering( _fing: ScaleFingering ) : void {
+    //     // _fing.setIndex(this.m_scaleFingeringIndex++);
+    //     this.m_scaleFingering.push(_fing);
+    // }
+    getScaleFingeringFromJson( _json: any ) : any {
+        return this.scaleFingeringFromName(_json );
+        // for (const key in _json) {
+        //     console.log("getInstr:" ,key, _json[key], _json );
+        //     if (key == 'm_name') {
+        //         return this.scaleFingeringFromName(_json[key]);
+        //     }
+        // }
     }
 }
 
@@ -530,19 +570,19 @@ musicData.addChord(chord);
 
 // 0,1,2,3
 // let fingering = new ChordFingering( "Drop 2", [1, 0, 2, 3] );
-let fingering = new ChordFingering("Closed", [0, 2, 3, 1]);
-fingering = new ChordFingering("Drop 2", [0, 2, 3, 1]);
+let fingering = new ChordFingering("Closed", [0, 2, 3, 1], FingeringType.CHORD );
+fingering = new ChordFingering("Drop 2", [0, 2, 3, 1], FingeringType.CHORD);
 musicData.addChordFingering(fingering);
-// fingering = new ChordFingering( "Drop 3", [2, 0, 1, 3] );
-fingering = new ChordFingering("Drop 3", [0, 3, 1, 2]);
+// fingering = new ChordFingering( "Drop 3", [2, 0, 1, 3], FingeringType.CHORD );
+fingering = new ChordFingering("Drop 3", [0, 3, 1, 2], FingeringType.CHORD);
 musicData.addChordFingering(fingering);
-fingering = new ChordFingering("Drop 12", [0, 1, 3, 2]);
+fingering = new ChordFingering("Drop 12", [0, 1, 3, 2], FingeringType.CHORD);
 musicData.addChordFingering(fingering);
-fingering = new ChordFingering("Drop 23", [0, 3, 2, 1]);
+fingering = new ChordFingering("Drop 23", [0, 3, 2, 1], FingeringType.CHORD);
 musicData.addChordFingering(fingering);
 
-musicData.addscaleFingering("Narrow");
-musicData.addscaleFingering("3 per String");
+fingering = new ChordFingering("Scale 35", [0, 3, 7, 5], FingeringType.SCALE);
+musicData.addChordFingering(fingering);
 
 export {
     musicData

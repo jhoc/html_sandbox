@@ -36,12 +36,10 @@ export class DiagramList {
         this.gapBtwDiaMargin = 0.14 * this.gapBtwDia;
         // this.scrollLeftAmount = 0;
 
-        // this.addDiagram(_instrument);
-        //  this.m_diagramList[0].deserialize();
-        if (!this.loadLocalStorage()) {
-            this.addDiagram(_instrument);
-        }
-        // this.addDiagram(_instrument);
+        // if (!this.loadLocalStorage()) {
+        //     this.addDiagram(_instrument);
+        // }
+        this.addDiagram(_instrument);
 
         this.canvas.addEventListener('mousedown', this.mouseDown.bind(this), false);
         this.canvas.addEventListener('mousemove', this.mouseMove.bind(this), false);
@@ -50,6 +48,7 @@ export class DiagramList {
     loadLocalStorage() : boolean {
         var retrievedObject: string | null = localStorage.getItem('diagramList');
         if( retrievedObject == null ) return false;
+        this.m_diagramList = [];
         retrievedObject = JSON.parse(retrievedObject);
         if (retrievedObject != null && retrievedObject.length != 0) {
             // this.m_diagramList = retrievedObject;
@@ -61,6 +60,8 @@ export class DiagramList {
                 var dia = new Diagram(this.canvas, this.instrument);
                 //    console.log( dia.deserialize() );
                 dia.deserialize(retrievedObject[i]!);
+                dia.createChordFingeringCoordinates();
+                dia.createScaleFingeringCoordinates();
                 // dia.update();
                 this.m_diagramList.push(dia);
             }
@@ -86,6 +87,7 @@ export class DiagramList {
         var diagram: Diagram = new Diagram(this.canvas, _instrument);
 
         this.m_diagramList.push(diagram);
+        // console.log( JSON.stringify(this.m_diagramList) );
         localStorage.setItem('diagramList', JSON.stringify(this.m_diagramList));
         // localStorage.setItem( 'diagramListCount', JSON.stringify( this.m_diagramList.length ) );
         // console.log( "getData addDia",JSON.stringify( this.m_diagramList.length ), localStorage.getItem( 'diagramListCount') );
@@ -186,7 +188,7 @@ export class DiagramList {
         if (this.m_diagramList[this.highlightRow] == undefined) return;
         this.m_diagramList[this.highlightRow]!.setDiagram(_dia);
         // localStorage.setItem( 'diagramList', JSON.stringify( this.m_diagramList ) );
-        console.log(JSON.stringify(_dia.getChordFingering()));
+        // console.log(JSON.stringify(_dia.getChordFingering()));
         this.m_diagramList[this.highlightRow]!.createChordFingeringCoordinates();
         localStorage.setItem('diagramList', JSON.stringify(this.m_diagramList));
         this.update();

@@ -12,10 +12,33 @@ const template = document.createElement('template')
 template.innerHTML = `
 <style>
 
+      .mydropdown{
+         display:inline;max-width:20%;
+         font-weight: 600;
+         cursor: pointer;  
+    }
+    .mydropdown:hover , .myoption:active , .myoption:checked{
+       //  border:2px dotted green;
+    }
+.myOptionItalic{
+font-weight: 100;
+ font-style: italic;
+}
+
+    .myoption{
+         font-style: normal;
+         font-weight: 200;
+    }
+    .mydropdown .myoption:checked,
+    .mydropdown .myoption:hover ,
+    .mydropdown .myoption:active {
+        font-weight: 600;
+     }
+
 </style>
-  <select id="pitchSelect"></select>
-  <select id="chordSelect"></select>
-  <select id="scaleSelect"></select>
+  <select class="mydropdown" id="pitchSelect"></select>
+  <select class="mydropdown" id="chordSelect"></select>
+  <select class="mydropdown" id="scaleSelect"></select>
 
   `
 
@@ -23,10 +46,10 @@ interface callbackRootChangeType {
     (_pitch: Pitch): void
 }
 interface callbackChordChangeType {
-    (_chord: IntervallArray): void
+    (_chord: IntervallArray | null ): void
 }
 interface callbackScaleChangeType {
-    (_pitch: IntervallArray): void
+    (_pitch: IntervallArray | null): void
 }
 
 // create a class, and clone the content of the template into it
@@ -83,10 +106,18 @@ export class DiagramSelector extends HTMLElement {
         // const index = this.chordSelect.selectedIndex - 1;
         if (this.chordSelect == null) return;
         const index: number = parseInt(this.chordSelect.value);
+       
         if (this.callbackOnChordChange == null) return;
-        if( musicData.chordAt(index) == null ) return;
-        this.callbackOnChordChange(musicData.chordAt(index)!);
-        this.filterScaleContent(musicData.chordAt(index)!);
+        this.callbackOnChordChange(musicData.chordAt(index));
+        this.filterScaleContent(musicData.chordAt(index));
+
+        if( index == -1 ) {
+            this.chordSelect.style.fontStyle = "italic";
+            this.chordSelect.style.fontWeight = "100";
+        } else {
+            this.chordSelect.style.fontStyle = "normal";
+            this.chordSelect.style.fontWeight = "600";
+        }
     }
 
     setCallbackOnScaleChange(_function: callbackScaleChangeType) {
@@ -98,9 +129,16 @@ export class DiagramSelector extends HTMLElement {
         if (this.scaleSelect == null) return;
         const index: number = parseInt(this.scaleSelect.value);
         if (this.callbackOnScaleChange == null) return;
-        if( musicData.scaleAt(index) == null ) return;
-        this.callbackOnScaleChange(musicData.scaleAt(index)!);
-        this.filterChordContent(musicData.scaleAt(index)!);
+        this.callbackOnScaleChange(musicData.scaleAt(index));
+        this.filterChordContent(musicData.scaleAt(index));
+
+        if( index == -1 ) {
+            this.scaleSelect.style.fontStyle = "italic";
+            this.scaleSelect.style.fontWeight = "100";
+        } else {
+            this.scaleSelect.style.fontStyle = "normal";
+            this.scaleSelect.style.fontWeight = "600";
+        }
     }
 
     fillPitchContent(): void {
@@ -109,6 +147,7 @@ export class DiagramSelector extends HTMLElement {
         for (var i: number = 0; i < musicData.pitch().length; i++) {
             var opt: HTMLOptionElement = document.createElement("option");
             opt.setAttribute("value", i.toString());
+            opt.setAttribute("class", "myoption");
             opt.innerHTML = musicData.pitchAt(i)!.name();
             elem.appendChild(opt);
         }
@@ -117,24 +156,28 @@ export class DiagramSelector extends HTMLElement {
     fillChordContent(): void {
         const elem: HTMLSelectElement | null = this.chordSelect;
         if (elem == null) return;
+        
         var opt: HTMLOptionElement = document.createElement("option");
         opt.setAttribute("value", '-1');
+        opt.setAttribute("class", "myOptionItalic");
+        // opt.style.fontStyle = "italic";
         opt.innerHTML = "Chord";
         elem.appendChild(opt);
         for (var i: number = 0; i < musicData.chord().length; i++) {
             var opt: HTMLOptionElement = document.createElement("option");
             // console.log("addCHord", musicData.chordAt(i).index());
             opt.setAttribute("value", musicData.chordAt(i)!.index().toString());
+            opt.setAttribute("class", "myoption");
             opt.innerHTML = musicData.chordAt(i)!.name();
             elem.appendChild(opt);
         }
     }
 
-    filterChordContent(_scale: IntervallArray): void {
+    filterChordContent(_scale: IntervallArray | null ): void {
         if (this.chordSelect == null) return;
         var prevSelectedValue: number = parseInt(this.chordSelect.value);
         this.chordSelect.options.length = 0;
-        if (_scale == undefined) {
+        if (_scale == null) {
             this.fillChordContent();
             this.chordSelect.value = prevSelectedValue.toString();
             return;
@@ -144,11 +187,13 @@ export class DiagramSelector extends HTMLElement {
         var opt: HTMLOptionElement = document.createElement("option");
         opt.setAttribute("value", '-1');
         opt.innerHTML = "Chord";
+        opt.setAttribute("class", "myOptionItalic");
         elem.add(opt);
         for (var i: number = 0; i < musicData.chord().length; i++) {
             if (musicData.chordAt(i)!.intervall().every(r => _scale.intervall().includes(r))) {
                 var opt: HTMLOptionElement = document.createElement("option");
                 opt.setAttribute("value", musicData.chordAt(i)!.index().toString());
+                opt.setAttribute("class", "myoption");
                 opt.innerHTML = musicData.chordAt(i)!.name();
                 elem.appendChild(opt);
             }
@@ -161,21 +206,23 @@ export class DiagramSelector extends HTMLElement {
         const elem: HTMLSelectElement = this.scaleSelect;
         var opt: HTMLOptionElement = document.createElement("option");
         opt.setAttribute('value', '-1');
+        opt.setAttribute("class", "myOptionItalic");
         opt.innerHTML = "Scale";
         elem.appendChild(opt);
         for (var i: number = 0; i < musicData.scale().length; i++) {
             var opt: HTMLOptionElement = document.createElement("option");
             opt.setAttribute("value", i.toString());
+            opt.setAttribute("class", "myoption");
             opt.innerHTML = musicData.scaleAt(i)!.name();
             elem.appendChild(opt);
         }
     }
 
-    filterScaleContent(_chord: IntervallArray): void {
+    filterScaleContent(_chord: IntervallArray | null ): void {
         if (this.scaleSelect == null) return;;
         var prevSelectedValue: number = parseInt(this.scaleSelect.value);
         this.scaleSelect.options.length = 0;
-        if (_chord == undefined) {
+        if (_chord == null) {
             this.fillScaleContent();
             this.scaleSelect.value = prevSelectedValue.toString();
             return;
@@ -184,12 +231,14 @@ export class DiagramSelector extends HTMLElement {
         const elem: HTMLSelectElement = this.scaleSelect;
         var opt: HTMLOptionElement = document.createElement("option");
         opt.setAttribute("value", '-1');
+        opt.setAttribute("class", "myOptionItalic");
         opt.innerHTML = "Scale";
         elem.add(opt);
         for (var i: number = 0; i < musicData.scale().length; i++) {
             if (_chord.intervall().every(r => musicData.scaleAt(i)!.intervall().includes(r))) {
                 var opt: HTMLOptionElement = document.createElement("option");
                 opt.setAttribute("value", musicData.scaleAt(i)!.index().toString());
+                opt.setAttribute("class", "myoption");
                 opt.innerHTML = musicData.scaleAt(i)!.name();
                 elem.appendChild(opt);
             }
@@ -200,24 +249,39 @@ export class DiagramSelector extends HTMLElement {
     setDiagram(_dia: Diagram): void {
         // console.log( _dia.getRoot(), _dia.getChord(), _dia.getScale() );
         // this.pitchSelect[_dia.getRoot().index()].selected = true;
-        if (this.pitchSelect != null)
-            this.pitchSelect.value = _dia.getRoot().index().toString();
+        if (this.pitchSelect != null && _dia.getRoot() != null )
+            this.pitchSelect.value = _dia.getRoot()!.index().toString();
         if (_dia.getChord() != null) {
             // console.log( "setDia chird.idx", _dia.getChord().index() );
-            if (this.chordSelect != null && _dia.getChord() != null)
+            if (this.chordSelect != null && _dia.getChord() != null) {
                 this.chordSelect.value = _dia.getChord() !.index().toString();
+            this.chordSelect.style.fontStyle = "normal";
+            this.chordSelect.style.fontWeight = "600";
+            }
+           
         } else {
             // this.chordSelect[0].selected = true;
-            if (this.chordSelect != null)
+            if (this.chordSelect != null) {
                 this.chordSelect.value = '-1';
+            this.chordSelect.style.fontStyle = "italic";
+            this.chordSelect.style.fontWeight = "100";
+            }
         }
         if (this.scaleSelect != null && _dia.getScale() != null) {
             this.scaleSelect.value = _dia.getScale() !.index().toString();
+          
+            this.scaleSelect.style.fontStyle = "normal";
+            this.scaleSelect.style.fontWeight = "600";
         } else {
             // this.scaleSelect[0].selected = true;
-            if (this.scaleSelect != null)
+            if (this.scaleSelect != null) {
                 this.scaleSelect.value = '-1';
+            this.scaleSelect.style.fontStyle = "italic";
+            this.scaleSelect.style.fontWeight = "100";
+            }
         }
+        this.filterChordContent( _dia.getScale() );
+        this.filterScaleContent( _dia.getChord() );
     }
 }
 // define a custom element called 'nav-bar' using the navBar class

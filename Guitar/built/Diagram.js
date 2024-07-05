@@ -1,4 +1,4 @@
-import { isEqualFretboardCoord, musicDefinition } from "./MusicDefinitions.js";
+import { FingeringType, isEqualFretboardCoord, musicDefinition } from "./MusicDefinitions.js";
 import { musicData } from "./MusicDefinitions.js";
 export var MouseClickBehaviour;
 (function (MouseClickBehaviour) {
@@ -13,8 +13,9 @@ export class Diagram {
         this.chord = null; // = musicData.scaleAt(0);
         this.scale = null; // = musicData.scaleAt(0);
         this.chordFingering = null;
-        this.chordFingeringString = 4;
+        this.chordFingeringString = 0;
         this.chordFingeringFret = 0;
+        this.scaleFingering = null;
         this.mouseClickBehaviour = MouseClickBehaviour.CUSTOM; //'SETCHORDFINGERING
         this.xPos = 0;
         this.yPos = 0;
@@ -28,13 +29,14 @@ export class Diagram {
         this.customCoordinates = [];
         // customCoordinates = [];
         this.chordFingeringCoordinates = []; //[[1,2], [3,4]]; //[];
+        this.scaleFingeringCoordinates = [];
         this.fretboardLeft = 0;
         this.fretboardRight = 0;
         this.fretboardTop = 0;
         this.fretboardBottom = 0;
         this.m_width = 0;
         this.m_height = 0;
-        this.chordFingeringStringFret = 0;
+        // chordFingeringStringFret: number = 0;
         this.callbackOnChange = null;
         if (_canvas != null) {
             this.canvas = _canvas;
@@ -48,7 +50,7 @@ export class Diagram {
         this.chord; // = musicData.scaleAt(0);
         this.scale; // = musicData.scaleAt(0);
         this.chordFingering;
-        this.chordFingeringString = 4;
+        this.chordFingeringString = this.instrument.pitch().length - 1;
         this.chordFingeringFret = 0;
         this.mouseClickBehaviour = MouseClickBehaviour.CUSTOM; //'SETCHORDFINGERING'
         this.xPos = 0;
@@ -87,12 +89,19 @@ export class Diagram {
         this.chordFingering = _dia.getChordFingering();
         this.chordFingeringFret = _dia.getChordFingeringFret();
         this.chordFingeringString = _dia.getChordFingeringString();
+        this.scaleFingering = _dia.getScaleFingering();
         this.customCoordinates = _dia.getCustomCoordinates();
+        // console.log( "setDia", this.chordFingering, this.chordFingeringFret, _dia.getChordFingeringFret(), this.chordFingeringString, _dia.getChordFingeringString() );
+        this.chordFingeringCoordinates = [];
+        this.createChordFingeringCoordinates();
+        this.scaleFingeringCoordinates = [];
+        this.createScaleFingeringCoordinates();
         this.update();
     }
     setRoot(_root) {
         this.root = _root;
-        this.computeChordFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString);
+        this.createChordFingeringCoordinates();
+        this.computeScaleFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString);
         this.update();
         // this.hasChanged();
     }
@@ -100,14 +109,18 @@ export class Diagram {
         return this.root;
     }
     setChord(_chord) {
+        var _a;
         this.chord = _chord;
-        // console.log( "setChord ", _chord );
-        if (_chord == undefined) {
-            this.chordFingeringCoordinates = [];
+        // console.log( "setChord ", _chord, this.chordFingering );
+        if (_chord == null) {
+            if (this.chordFingering == null || ((_a = this.chordFingering) === null || _a === void 0 ? void 0 : _a.getType()) == FingeringType.CHORD) {
+                this.chordFingeringCoordinates = [];
+                this.chordFingering = null;
+            }
             this.mouseClickBehaviour = MouseClickBehaviour.CUSTOM;
         }
         else {
-            this.computeChordFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString);
+            this.createChordFingeringCoordinates();
         }
         this.update();
         // this.hasChanged();
@@ -117,7 +130,20 @@ export class Diagram {
     }
     setScale(_scale) {
         // console.log( "Diagram.setScale", _scale );
+        var _a;
         this.scale = _scale;
+        if (_scale == null) {
+            if (this.chordFingering == null || ((_a = this.chordFingering) === null || _a === void 0 ? void 0 : _a.getType()) == FingeringType.SCALE) {
+                this.chordFingeringCoordinates = [];
+                this.chordFingering = null;
+            }
+            this.scaleFingering = null;
+            this.scaleFingeringCoordinates = [];
+            this.mouseClickBehaviour = MouseClickBehaviour.CUSTOM;
+        }
+        else {
+            this.computeScaleFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString);
+        }
         this.update();
         // this.hasChanged();
     }
@@ -127,12 +153,12 @@ export class Diagram {
     setChordFingering(_fing) {
         this.chordFingering = _fing;
         // console.log( "dia.setChordFingering", _fing);
-        if (_fing == undefined) {
+        if (_fing == null) {
             this.chordFingeringCoordinates = [];
             this.mouseClickBehaviour = MouseClickBehaviour.CUSTOM;
         }
         else {
-            this.computeChordFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString);
+            this.createChordFingeringCoordinates();
         }
         this.update();
     }
@@ -142,33 +168,56 @@ export class Diagram {
     setChordFingeringString(_i) {
         this.chordFingeringString = _i;
         // console.log("dia.setChordFingString", _i);
-        this.computeChordFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString);
+        this.createChordFingeringCoordinates();
+        this.computeScaleFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString);
         this.update();
     }
     getChordFingeringString() {
+        // console.log("dia.getChordFingString", this.chordFingeringString);
         return this.chordFingeringString;
     }
     setChordFingeringFret(_i) {
         this.chordFingeringFret = _i;
         // console.log("dia.setChordFingFret", _i);
-        this.computeChordFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString);
+        this.createChordFingeringCoordinates();
+        this.computeScaleFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString);
         this.update();
     }
     getChordFingeringFret() {
-        return this.chordFingeringString;
+        // console.log("dia.getChordFingFret", this.chordFingeringFret);
+        return this.chordFingeringFret;
     }
     getCustomCoordinates() {
         return this.customCoordinates;
     }
-    createChordFingeringCoordinates() {
-        this.computeChordFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString);
+    getScaleFingering() {
+        return this.scaleFingering;
     }
-    computeChordFingeringCoordinates(_fret, _string) {
-        // console.log("------------------------start compute ChordFing fret:", _fret, _string);
-        if (this.chordFingering == undefined)
+    setScaleFingering(_fing) {
+        this.scaleFingering = _fing;
+    }
+    createChordFingeringCoordinates() {
+        if (this.chordFingering == null)
             return;
-        if (this.chord == undefined)
+        let intervall = null;
+        // console.log("creteFing", this.chordFingering.getType() );
+        if (this.chordFingering.getType() == FingeringType.CHORD) {
+            intervall = this.chord;
+        }
+        else if (this.chordFingering.getType() == FingeringType.SCALE) {
+            intervall = this.scale;
+        }
+        if (intervall == null)
             return;
+        this.computeChordFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString, intervall.intervall());
+    }
+    computeChordFingeringCoordinates(_fret, _string, _intervall) {
+        // console.log("------------------------start compute ChordFing fret:", _fret, _string, _intervall);
+        if (this.root == null)
+            return;
+        if (this.chordFingering == null)
+            return;
+        // if (this.chord == undefined) return;
         //         if (_string == undefined) {
         //             _string = this.getInstrument().pitch().length - 1;
         //         }
@@ -177,8 +226,109 @@ export class Diagram {
         // _string = Math.max( _string, min-1 );
         //vvvv create chord pitches
         var pitches = [];
-        for (var i = 0; i < this.chord.intervall().length; i++) {
-            pitches.push((this.root.pitch() + this.chord.intervallAt(i).halfstep()) % 12);
+        for (var i = 0; i < _intervall.length; i++) {
+            pitches.push((this.root.pitch() + _intervall[i].halfstep()) % 12);
+        }
+        // console.log(this.chordFingering.fingering(), " : ", pitches.toString());
+        ////^^^
+        var coords = [];
+        ////vvvvv find startfret/-pitch
+        var startPitch = null;
+        // var startFret: number = -1;
+        var p;
+        for (var fret = _fret; fret <= this.getInstrument().fretNum(); fret++) {
+            if (this.instrument.pitchAt(_string) == null)
+                return;
+            p = musicDefinition.pitch(this.instrument.pitchAt(_string).index() + fret);
+            if (p == null)
+                continue;
+            // console.log( "search start", p, p.pitch() );
+            if (pitches.includes(p.pitch())) {
+                startPitch = p;
+                // startFret = fret;
+                // coords.push([fret, _string]);
+                // console.log("startpitch found: ", startPitch, " at fret ", startFret);
+                break;
+            }
+        }
+        ////^^^^^^
+        if (startPitch == null)
+            return;
+        ///vvvvvvv build chord from startPitch
+        var pIndex = pitches.indexOf(startPitch.pitch());
+        var tempPitches = [];
+        for (var i = 0; i < pitches.length; i++) {
+            tempPitches.push(pitches[(pIndex + i) % pitches.length]);
+        }
+        pitches = tempPitches;
+        // console.log("rotated:", tempPitches);
+        ///^^^^^^
+        tempPitches = []; // temporary
+        ///vvvvvvv order pitches to fingering
+        // for (var i = 0; i < pitches.length; i++) {
+        for (var i = 0; i < this.chordFingering.fingering().length; i++) {
+            // console.log( this.chordFingering.fingeringAt(i % pitches.length) );
+            if (this.chordFingering.fingeringAt(i % pitches.length) == null)
+                return;
+            if (pitches[this.chordFingering.fingeringAt(i % pitches.length)] == null)
+                continue;
+            tempPitches.push(pitches[this.chordFingering.fingeringAt(i % pitches.length)]);
+        }
+        pitches = tempPitches;
+        // console.log("rotated:", tempPitches);
+        //////^^^^
+        // console.log( "---------------------", _string );
+        //////////find coords
+        var pitchIndex = 0;
+        for (var saite = _string; saite >= 0; saite--) {
+            if (this.instrument.pitchAt(saite) == null)
+                continue;
+            var stringIndex = this.instrument.pitchAt(saite).index();
+            for (var fret = _fret; fret <= this.getInstrument().fretNum() && fret < _fret + 5; fret++) {
+                // if( saite == 5 ) {
+                // console.log( "check:", saite, fret, pitches[pitchIndex], musicDefinition.pitch( stringIndex + fret ).pitch() );
+                // }
+                if (musicDefinition.pitch(stringIndex + fret) == null)
+                    continue;
+                if (pitches[pitchIndex] == musicDefinition.pitch(stringIndex + fret).pitch()) {
+                    coords.push({
+                        fret: fret,
+                        saite: saite
+                    }); //[fret, saite]);
+                    pitchIndex++;
+                    break;
+                }
+            }
+        }
+        // console.log( coords.length, pitches.length );
+        if (coords.length < pitches.length) {
+            this.chordFingeringFret++;
+            return this.computeChordFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString, _intervall);
+        }
+        // console.log( "dia.computeFIng", coords.toString() );
+        this.chordFingeringCoordinates = coords;
+    }
+    createScaleFingeringCoordinates() {
+        this.computeScaleFingeringCoordinates(this.chordFingeringFret, this.chordFingeringString);
+    }
+    computeScaleFingeringCoordinates(_fret, _string) {
+        if (this.chordFingering == null)
+            return;
+        if (this.scale == null)
+            return;
+        if (this.root == null)
+            return;
+        // console.log("------------------------start compute ScaleFing fret:", _fret, _string);
+        //         if (_string == undefined) {
+        //             _string = this.getInstrument().pitch().length - 1;
+        //         }
+        // let min = Math.min( this.chord.intervall().length, this.chordFingering.fingering().length );
+        // console.log( "min: ", this.chord.intervall().length, this.chordFingering.fingering().length );
+        // _string = Math.max( _string, min-1 );
+        //vvvv create chord pitches
+        var pitches = [];
+        for (var i = 0; i < this.scale.intervall().length; i++) {
+            pitches.push((this.root.pitch() + this.scale.intervallAt(i).halfstep()) % 12);
         }
         // console.log(this.chordFingering.fingering(), " : ", pitches.toString());
         ////^^^
@@ -257,11 +407,14 @@ export class Diagram {
         //     return this.computeChordFingeringCoordinates( this.chordFingeringFret, this.chordFingeringString );
         // }
         // console.log( "dia.computeFIng", coords.toString() );
-        this.chordFingeringCoordinates = coords;
+        this.scaleFingeringCoordinates = coords;
     }
     getName() {
         // console.log(this.getRoot());
-        let name = this.getRoot().name();
+        let name = "";
+        if (this.getRoot() != null) {
+            name = this.getRoot().name();
+        }
         if (this.getChord() != null) {
             name += " " + this.getChord().name();
         }
@@ -490,7 +643,9 @@ export class Diagram {
         }
     }
     drawScale(_scale, _color) {
-        if (_scale == undefined)
+        if (_scale == null)
+            return;
+        if (this.root == null)
             return;
         let pitches = [];
         // console.log( this.scale.intervall() );
@@ -556,6 +711,7 @@ export class Diagram {
         }
         this.drawScale(musicData.rootArray(), this.fingerColorRoot);
         this.drawCoords(this.chordFingeringCoordinates, '#223366');
+        // this.drawCoords(this.scaleFingeringCoordinates, '#44AA99');
         this.drawCoords(this.customCoordinates, this.fingerColorCustom);
     }
     deserialize(_json) {
@@ -592,8 +748,8 @@ export class Diagram {
                 }
                 // console.log("dia.scale:", this.scale );
             }
-            if (key == 'chordfingering') {
-                v = musicData.chordFingeringFromName(res[key]);
+            if (key == 'chordFingering') {
+                v = musicData.getChordFingeringFromJson(res[key]);
                 if (v != null) {
                     this.chordFingering = v;
                 }
@@ -601,8 +757,15 @@ export class Diagram {
             if (key == 'chordFingeringString') {
                 this.chordFingeringString = res[key];
             }
-            if (key == 'chordFingeringStringFret') {
-                this.chordFingeringStringFret = res[key];
+            if (key == 'chordFingeringFret') {
+                this.chordFingeringFret = res[key];
+            }
+            if (key == 'scaleFingering') {
+                v = musicData.getScaleFingeringFromJson(res[key]);
+                // console.log( "fdsdf", res[key] );
+                if (v != null) {
+                    this.scaleFingering = v;
+                }
             }
             if (key == 'mouseClickBehaviour') {
                 this.mouseClickBehaviour = res[key];
@@ -614,10 +777,21 @@ export class Diagram {
         }
     }
 }
-// const canvas = document.getElementById('diagram');
-// let dia = new Diagram(canvas, musicData.instrumentAt(0));
-// dia.update();
-// export {
-//     dia
-// };
+export function adaptDiagramWidth(_canvas, _scroll) {
+    if (_canvas == null || _scroll == null)
+        return;
+    var windowW = document.body.clientWidth - 40; //window.innerWidth;
+    // var scrollW = scrollDiagramCanvas.getBoundingClientRect().width;
+    var canvasW = _canvas.getBoundingClientRect().width;
+    // console.log( "logic dia editor.resize", windowW, scrollW, canvasW );
+    if (windowW > canvasW) {
+        // console.log("logicDiaEdit maxW");
+        _scroll.style.width = canvasW + 'px';
+    }
+    else {
+        // console.log("logicDiaEdit apaptW");
+        _scroll.style.width = windowW + 'px';
+    }
+    // console.log( "adaptEditorSize" );
+}
 //# sourceMappingURL=Diagram.js.map

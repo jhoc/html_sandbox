@@ -15,7 +15,7 @@ if (diagramSelector != null && diagramOptionsSelector != null) {
     diagramOptionsSelector.setInstrument(dia.getInstrument());
     diagramOptionsSelector.setDiagram(dia);
     function onChordChange(_chord) {
-        // console.log("logic.onChordChange");
+        // console.log("logic.onChordChange", diagramOptionsSelector);
         dia.setChord(_chord);
         if (diagramOptionsSelector != null) {
             diagramOptionsSelector.setDiagram(dia);
@@ -40,11 +40,21 @@ if (diagramSelector != null && diagramOptionsSelector != null) {
         dia.setChordFingeringString(_s);
     }
     diagramOptionsSelector.setCallbackOnChordFingeringStringChange(onChordFingereringStringChange);
+    function onChordFingereringFretChange(_s) {
+        // console.log( "onChordFingStringChange", _s );
+        dia.setChordFingeringFret(_s);
+    }
+    diagramOptionsSelector.setCallbackOnChordFingeringFretChange(onChordFingereringFretChange);
     function onMouseBehaviourChange(_v) {
-        console.log("onMouseBevah", _v);
+        // console.log( "onMouseBevah", _v );
         dia.setMouseClickBehaviour(_v);
     }
     diagramOptionsSelector.setCallbackOnMouseBehaviourChange(onMouseBehaviourChange);
+    function onScaleFingerChange(_fing) {
+        // console.log( "onScaleFingChange", _fing );
+        dia.setScaleFingering(_fing);
+    }
+    diagramOptionsSelector.setCallbackOnScaleFingeringChange(onScaleFingerChange);
 }
 window.addEventListener('resize', function (event) {
     // console.log( "logic dia editor.resize", window.innerWidth, window.innerHeight)

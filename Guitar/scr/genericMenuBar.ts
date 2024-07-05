@@ -111,8 +111,14 @@ dialog[open] {
     </div>
 
   `
+  interface callbackLoadType {
+    (): void
+}
+
+
 // create a class, and clone the content of the template into it
 export class GenericMenuBar extends HTMLElement {
+  m_callbackOnLoad : callbackLoadType | null = null;
     constructor() {
         super()
 
@@ -129,6 +135,15 @@ export class GenericMenuBar extends HTMLElement {
             this.handleMouse(evt);
         }, true);
     }
+
+setCallbackOnLoad( _func: callbackLoadType ) {
+   this.m_callbackOnLoad = _func;
+}
+
+callbackOnLoad() : void {
+  if( this.m_callbackOnLoad == null ) return;
+  this.m_callbackOnLoad();
+}
 
     handleMouse(evt: MouseEvent): void {
         if (this.shadowRoot == null) return;
@@ -193,7 +208,7 @@ export class GenericMenuBar extends HTMLElement {
         return li;
     }
 
-    addMenuElement(_elem: HTMLLIElement): void {
+    addMenuElement(_elem: HTMLElement): void {
         if (this.shadowRoot != null && this.shadowRoot.getElementById('menu-box') != null) {
             this.shadowRoot.getElementById('menu-box') !.append(_elem);
         }
@@ -242,3 +257,103 @@ export class GenericMenuBar extends HTMLElement {
 }
 // define a custom element called 'nav-bar' using the navBar class
 customElements.define('jui-genericmenubar', GenericMenuBar);
+
+
+export function fillNavigation(menubar: GenericMenuBar): void {
+    var element: HTMLButtonElement = menubar.createButton('navigation', "./images/mi--chevron-down.svg");
+    menubar.addHeaderLeftIcon(element);
+    element.addEventListener('click', function (): void {
+        menubar.clearMenu();
+        menubar.createMenuElement('Diagram List').addEventListener('click', function () {
+            // console.log("click Diagram List");
+            // window.open('index.html')
+            window.location.href = 'index.html';
+        });
+        menubar.createMenuElement('Score').addEventListener('click', function () {
+            // console.log("Score");
+            // window.open('score.html')
+            window.location.href = 'score.html';
+        });
+        menubar.createMenuElement('Learn').addEventListener('click', function () {
+            // console.log("Score");
+            // window.open('score.html')
+            window.location.href = 'learnFretboard.html';
+        });
+        menubar.createMenuElement('Save').addEventListener('click', function () {
+            console.log("Save");
+            let str = localStorage.getItem('diagramList');
+            if( str == null ) return;
+            // console.log( "save", str );
+            download( str, "test.json", 'application/json' );
+        });
+
+        ///////////////// LOAD
+        // <input type="file" id="file-selector" multiple>
+
+        var label = document.createElement("label") as HTMLLabelElement;
+        // label.setAttribute( "class", "custom-file-upload" );
+        label.setAttribute('class', 'menu__item');
+        label.innerHTML = "Load";
+
+        var inp = document.createElement("input") as HTMLInputElement;
+        inp.style.position =  "absolute";
+        inp.style.left = "-99999rem";
+        // inp.setAttribute( "display", "none" );
+        inp.setAttribute('class', 'menu__item');
+        inp.setAttribute('type', 'file');
+        inp.setAttribute('accept', ".json");
+label.appendChild( inp );
+
+menubar.addMenuElement( label );
+        // menubar.addMenuElement(inp);
+        const fr = new FileReader();
+        inp.addEventListener('change', (event) => {
+            let e = event.target as HTMLInputElement;
+            const fileList = e.files;
+            if (fileList == null) return;
+            // console.log(fileList);
+            for (let i = 0; i < fileList?.length; i++) {
+                // console.log(fileList[i]);
+                fr.readAsText(fileList[i]!, "application/json" );
+              }
+        });
+        fr.addEventListener("load", e => {
+            if (e.target == null || fr.result == null) return;
+            let str = fr.result as string;
+            // str = str.replace(/\\/g, '');
+            // console.log(e.target.result, str )
+            localStorage.setItem('diagramList', str );//JSON.stringify(this.m_diagramList));
+            menubar.callbackOnLoad();
+        });
+
+
+        //////////////////////
+
+        menubar.openMenu(element);
+    })
+}
+
+export function createBurgerMenu(menubar: GenericMenuBar): HTMLButtonElement {
+    var element: HTMLButtonElement = menubar.createButton('navigation', "./images/mi--menu.svg");
+    menubar.addHeaderRightIcon(element);
+    return element;
+}
+
+///////////7
+function download(text: string, name: string, type: any) {
+    var file = new Blob([text], {
+        type: type
+    });
+    // var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    // if (isIE)
+    // {
+    //     window.navigator.msSaveOrOpenBlob(file, name);
+    // }
+    // else
+    {
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(file);
+        a.download = name;
+        a.click();
+    }
+}

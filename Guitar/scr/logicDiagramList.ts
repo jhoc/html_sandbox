@@ -14,9 +14,51 @@ import {
     LayoutProperties
 } from "./diagramList.js"
 import { Diagram } from './Diagram.js';
-import {
-    MenuHeader
-} from "./menuHeader.js"
+// import { MenuHeader } from "./menuHeader.js"
+import { createBurgerMenu, fillNavigation, GenericMenuBar } from './genericMenuBar.js';
+
+///////////////////////////vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+// var head = document.getElementById('menuheader') as MenuHeader;
+var head = document.getElementById('menuheader') as GenericMenuBar;
+function callbackOnLoad() {
+console.log( "callbackOnLoad!!!");
+diagramList.loadLocalStorage();
+diagramList.update();
+adaptSize();
+}
+head.setCallbackOnLoad( callbackOnLoad );
+
+// add button to headerbar
+fillNavigation( head );
+var burgerMenu : HTMLButtonElement = createBurgerMenu( head );
+burgerMenu.addEventListener('click', function () : void {
+    head.clearMenu();
+    head.createMenuElement('124fd').addEventListener('click', function () {
+        console.log("124fd");
+    });
+    head.createMenuElement('sdsdf78sdf78sdf').addEventListener('click', function () {
+        console.log("1sdsdf78");
+    });
+    // menubar.addMenuElement( li );
+
+    head.openMenu(burgerMenu);
+})
+
+element = head.createButton('other', "./images/ic--round-plus.svg");
+head.addHeaderRightIcon(element);
+element.addEventListener('click', function () {
+    // console.log( "addDia" );
+    diagramList.addDiagram(musicData.instrumentAt(0)!);
+    adaptSize();
+})
+
+var element = head.createButton('other', "");
+head.addHeaderRightIcon(element);
+element.addEventListener('click', function () {
+    console.log("other");
+})
+/////////^^^^^^^^^^^^^^^^^^^^^^^^
+
 
 const editDiagramList: HTMLButtonElement = document.getElementById('edit-diagramList') as HTMLButtonElement;
 const deleteDiagramList: HTMLButtonElement = document.getElementById('delete-diagramList') as HTMLButtonElement;
@@ -24,7 +66,7 @@ const deleteDiagramList: HTMLButtonElement = document.getElementById('delete-dia
 const scrollDiagramListCanvas: HTMLElement = document.getElementById('scroll-editor-diagramList') as HTMLDivElement;
 const diagramListCanvas: HTMLCanvasElement = document.getElementById('diagramList') as HTMLCanvasElement;
 const diagramList: DiagramList = new DiagramList(diagramListCanvas, musicData.instrumentAt(0)!);
-const dialog: HTMLDialogElement = document.getElementById("dialog") as HTMLDialogElement || null;
+const dialog: HTMLDialogElement = document.getElementById("dialog") as HTMLDialogElement;
 deleteDiagramList.addEventListener('click', function () {
     // console.log("removeDiaFromList")
     diagramList.removeDiagram(diagramList.getSelectedDiagramIndex());
@@ -41,7 +83,7 @@ editDiagramList.addEventListener('click', function () : void {
 })
 if( document.getElementById("dialogCloseButton") != null ) {
 document.getElementById("dialogCloseButton")!.addEventListener('click', function () : void {
-    diagramList.setSelectedDiagram(getEditorDiagram());
+    diagramList.setSelectedDiagram( getEditorDiagram() );
     dialog.close();
     diagramList.update();
 })
@@ -79,20 +121,27 @@ function setPositionForSelected( _yPos: number | undefined ) : void {
     //damit beziehen sich alle children mit dem style parameter(position: absolute;) auf den parent
     // deswegen reicht es die position des diagram auf dem canvas zu wissen
     let listProp: LayoutProperties = diagramList.getLayoutProperties();
+    
     let x: number = (listProp.gapBtwDiaMargin) + scrollDiagramListCanvas.scrollLeft;
     let y: number = _yPos;
-    y += editDiagramList.clientHeight / 2;
+    // y += (listProp.gapBtwDia / 2);
+    y += (listProp.gapBtwDiaMargin);
+   
+    // y -= (editDiagramList.clientHeight / 2);
+    // y -= editDiagramList.clientHeight;
 
     diagramList.setScrollLeftAmount(scrollDiagramListCanvas.scrollLeft);
-    x += scrollDiagramListCanvas.clientWidth - 10;
-
+    x += scrollDiagramListCanvas.clientWidth;// - 10;
+x -= (listProp.gapBtwDiaMargin * 2);
     x -= deleteDiagramList.clientWidth;
     deleteDiagramList.style.left = x + 'px';
     deleteDiagramList.style.top = y + 'px';
+    deleteDiagramList.style.height = (listProp.gapBtwDia - (listProp.gapBtwDiaMargin*2)) + 'px';
 
     x -= editDiagramList.clientWidth + 10;
     editDiagramList.style.left = x + 'px';
     editDiagramList.style.top = y + 'px';
+    editDiagramList.style.height = (listProp.gapBtwDia - (listProp.gapBtwDiaMargin*2)) + 'px';
 }
 
 window.addEventListener('resize', function (event: UIEvent) {
@@ -129,9 +178,11 @@ function adaptSize() : void {
     if ( windowW > canvasW ) {
         // console.log( "logicDiaEdit maxW");
         scrollDiagramListCanvas.style.width = canvasW + 'px';
+        head.style.width = canvasW + 'px';
     } else {
         // console.log( "logicDiaEdit apaptW");
         scrollDiagramListCanvas.style.width = windowW + 'px';
+        head.style.width = windowW + 'px';
     }
 }
 
@@ -148,17 +199,3 @@ scrollDiagramListCanvas.addEventListener('scroll', function () : void {
 })
 
 
-// add button to headerbar
-var head = document.getElementById('menuheader') as MenuHeader || null;
-element = head.createButton('other', "./images/ic--round-plus.svg");
-head.addHeaderRightIcon(element);
-element.addEventListener('click', function () {
-    diagramList.addDiagram(musicData.instrumentAt(0)!);
-    adaptSize();
-})
-
-var element = head.createButton('other', "");
-head.addHeaderRightIcon(element);
-element.addEventListener('click', function () {
-    console.log("other");
-})
