@@ -97,7 +97,7 @@ dialog.addEventListener("click", e => {
         e.clientY < dialogDimensions.top ||
         e.clientY > dialogDimensions.bottom
     ) {
-        dialog.close()
+        // dialog.close(); //disabled for firefox
     }
 })
 

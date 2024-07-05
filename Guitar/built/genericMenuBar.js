@@ -273,7 +273,6 @@ export function fillNavigation(menubar) {
         var inp = document.createElement("input");
         inp.style.position = "absolute";
         inp.style.left = "-99999rem";
-        // inp.setAttribute( "left", "-99999rem" );
         // inp.setAttribute( "display", "none" );
         inp.setAttribute('class', 'menu__item');
         inp.setAttribute('type', 'file');
