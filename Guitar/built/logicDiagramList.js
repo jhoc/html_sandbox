@@ -73,7 +73,7 @@ dialog.addEventListener("click", e => {
         e.clientX > dialogDimensions.right ||
         e.clientY < dialogDimensions.top ||
         e.clientY > dialogDimensions.bottom) {
-        // dialog.close(); //disabled for firefox
+        // dialog.close() // not working in firefox
     }
 });
 // // callbacks connect dia and diaList

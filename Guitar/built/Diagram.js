@@ -4,8 +4,15 @@ export var MouseClickBehaviour;
 (function (MouseClickBehaviour) {
     MouseClickBehaviour[MouseClickBehaviour["CUSTOM"] = 0] = "CUSTOM";
     MouseClickBehaviour[MouseClickBehaviour["SETCHORDFINGERING"] = 1] = "SETCHORDFINGERING";
+    MouseClickBehaviour[MouseClickBehaviour["CALLBACK"] = 2] = "CALLBACK";
 })(MouseClickBehaviour || (MouseClickBehaviour = {}));
 ;
+export var FingerLabel;
+(function (FingerLabel) {
+    FingerLabel[FingerLabel["NONE"] = 0] = "NONE";
+    FingerLabel[FingerLabel["NOTE"] = 1] = "NOTE";
+    FingerLabel[FingerLabel["FUNCTION"] = 2] = "FUNCTION";
+})(FingerLabel || (FingerLabel = {}));
 export class Diagram {
     constructor(_canvas, _instrument) {
         this.canvas = null;
@@ -17,6 +24,8 @@ export class Diagram {
         this.chordFingeringFret = 0;
         this.scaleFingering = null;
         this.mouseClickBehaviour = MouseClickBehaviour.CUSTOM; //'SETCHORDFINGERING
+        this.callbackOnMouseClick = null;
+        this.m_drawFingerLabel = FingerLabel.NOTE;
         this.xPos = 0;
         this.yPos = 0;
         this.fretDelta = 50; // * window.devicePixelRatio;
@@ -63,6 +72,9 @@ export class Diagram {
         this.fingerColorChord = '#BB99DD';
         this.fingerColorScale = '#99DDDD';
         this.updateDimension();
+    }
+    setFingerLabelType(_fingLabel) {
+        this.m_drawFingerLabel = _fingLabel;
     }
     setMouseClickBehaviour(_behaviour) {
         // console.log( "dia",  _behaviour );
@@ -431,6 +443,9 @@ export class Diagram {
         }
         return true;
     }
+    setCallbackOnMouseClick(_func) {
+        this.callbackOnMouseClick = _func;
+    }
     mouseUp(_evt) {
         if (this.canvas == null)
             return;
@@ -442,6 +457,13 @@ export class Diagram {
         }
         let coord = this.posToCoord(x, y);
         // console.log( x, y, this.yPos, coord );
+        if (this.mouseClickBehaviour == MouseClickBehaviour.CALLBACK) {
+            if (this.callbackOnMouseClick != null) {
+                let pitch = musicDefinition.pitch(this.instrument.pitchAt(coord.saite).index() + coord.fret);
+                this.callbackOnMouseClick(coord, pitch);
+            }
+            return;
+        }
         // this.mouseClickBehaviour = 'CUSTOM'; //'SETCHORDFINGERING'
         if (this.mouseClickBehaviour == MouseClickBehaviour.SETCHORDFINGERING) {
             // console.log( "SetChordFingFret");
@@ -627,6 +649,8 @@ export class Diagram {
         this.ctx.fillStyle = _color;
         this.ctx.arc(_x, _y, this.fingerWidth, 0, 2 * Math.PI);
         this.ctx.fill();
+        if (this.m_drawFingerLabel == FingerLabel.NONE)
+            return;
         let charW = this.ctx.measureText(name).width;
         let charH = this.ctx.measureText(name).actualBoundingBoxAscent + this.ctx.measureText(name).actualBoundingBoxDescent;
         this.ctx.fillStyle = "#000000";

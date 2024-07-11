@@ -1,3 +1,9 @@
+:root {
+  --gutter: 20px;
+  --flexspacing: 1em;
+}
+
+
 body {
     font-family: sans-serif;
 }
@@ -107,11 +113,25 @@ dialog[open] {
   /* border: thin solid #ffdec8; */
   /* margin: 0; */
   border: none;
-  border-radius: 1rem;
-  padding: 20;
+  border-radius: 0.25rem;
+  padding: var(--flexspacing);
 }
 dialog::backdrop {
   background-color: hsla(0, 0%, 0%, 0.493);
+}
+
+#noteLabel {
+  opacity: 0;
+  margin: 30px;
+  border: 2px;
+  border-color: black;
+}
+
+.row {
+  margin: 0px;
+  gap: var(--flexspacing);
+  border: 2px;
+  border-color: black;
 }
 
 #debug-div {

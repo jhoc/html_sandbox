@@ -22,8 +22,17 @@ import {
 
 export enum MouseClickBehaviour {
     CUSTOM,
-    SETCHORDFINGERING
+    SETCHORDFINGERING,
+    CALLBACK
 };
+export enum FingerLabel {
+    NONE, NOTE, FUNCTION
+}
+
+interface callbackMouseClickType {
+    ( _coord : FretboardCoord, _pitch : Pitch | null ) : void;
+}
+
 interface callbackChangeType {
     (_dia: Diagram): void
 }
@@ -39,7 +48,11 @@ export class Diagram {
     chordFingeringString: number = 0;
     chordFingeringFret: number = 0;
     scaleFingering: ScaleFingering | null = null;
+
     mouseClickBehaviour: MouseClickBehaviour = MouseClickBehaviour.CUSTOM; //'SETCHORDFINGERING
+    callbackOnMouseClick : callbackMouseClickType | null = null;
+    m_drawFingerLabel : FingerLabel = FingerLabel.NOTE;
+
     xPos: number = 0;
     yPos: number = 0;
     fretDelta: number = 50; // * window.devicePixelRatio;
@@ -97,6 +110,10 @@ export class Diagram {
 
         this.updateDimension();
     }
+
+setFingerLabelType( _fingLabel : FingerLabel ) {
+    this.m_drawFingerLabel = _fingLabel;
+}
 
     setMouseClickBehaviour(_behaviour: MouseClickBehaviour) {
         // console.log( "dia",  _behaviour );
@@ -485,6 +502,10 @@ this.scaleFingering = _fing;
         return true;
     }
 
+setCallbackOnMouseClick( _func : callbackMouseClickType ) {
+    this.callbackOnMouseClick = _func;
+}
+
     mouseUp( _evt: MouseEvent ) {
         if( this.canvas == null ) return;
         var rect: DOMRect = this.canvas.getBoundingClientRect();
@@ -497,6 +518,14 @@ this.scaleFingering = _fing;
 
         let coord: FretboardCoord = this.posToCoord(x, y)
         // console.log( x, y, this.yPos, coord );
+
+if( this.mouseClickBehaviour == MouseClickBehaviour.CALLBACK ) {
+    if( this.callbackOnMouseClick != null ) {
+        let pitch = musicDefinition.pitch( this.instrument.pitchAt( coord.saite )!.index() + coord.fret );
+        this.callbackOnMouseClick( coord, pitch );
+    }
+    return;
+}
 
         // this.mouseClickBehaviour = 'CUSTOM'; //'SETCHORDFINGERING'
         if (this.mouseClickBehaviour == MouseClickBehaviour.SETCHORDFINGERING) {
@@ -703,6 +732,7 @@ this.scaleFingering = _fing;
         this.ctx.arc(_x, _y, this.fingerWidth, 0, 2 * Math.PI);
         this.ctx.fill();
 
+        if( this.m_drawFingerLabel == FingerLabel.NONE ) return;
 
         let charW = this.ctx.measureText(name).width;
         let charH = this.ctx.measureText(name).actualBoundingBoxAscent + this.ctx.measureText(name).actualBoundingBoxDescent;

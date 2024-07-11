@@ -1,13 +1,28 @@
-import { createBurgerMenu, fillNavigation } from './genericMenuBar.js';
-import { adaptDiagramWidth, Diagram, FingerLabel, MouseClickBehaviour } from './Diagram.js';
-import { musicData, musicDefinition } from './MusicDefinitions.js';
+import {
+    createBurgerMenu,
+    fillNavigation,
+    GenericMenuBar
+} from './genericMenuBar.js';
+import {
+    adaptDiagramWidth,
+    Diagram,
+    FingerLabel,
+    MouseClickBehaviour
+} from './Diagram.js';
+import {
+    musicData,
+    Pitch,
+    musicDefinition,
+    FretboardCoord
+} from './MusicDefinitions.js';
 ///////////////////////////vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 // var head = document.getElementById('menuheader') as MenuHeader;
-var head = document.getElementById('menuheader');
+var head = document.getElementById('menuheader') as GenericMenuBar;
+
 // add button to headerbar
 fillNavigation(head);
-var burgerMenu = createBurgerMenu(head);
-burgerMenu.addEventListener('click', function () {
+var burgerMenu: HTMLButtonElement = createBurgerMenu(head);
+burgerMenu.addEventListener('click', function (): void {
     head.clearMenu();
     head.createMenuElement('124fd').addEventListener('click', function () {
         console.log("124fd");
@@ -16,8 +31,10 @@ burgerMenu.addEventListener('click', function () {
         console.log("1sdsdf78");
     });
     // menubar.addMenuElement( li );
+
     head.openMenu(burgerMenu);
-});
+})
+
 var switchState = "noteToDia";
 const switchButton = head.createButton("Switchi", "");
 head.addHeaderRightIcon(switchButton);
@@ -29,82 +46,88 @@ switchButton.addEventListener("click", function (_evt) {
     const noteLabel = document.getElementById("noteLabel");
     const diagram = document.getElementById("scroll-editor-diagram");
     const keyboard = document.getElementById("keyboardContainer");
-    if (container == null || solButRow == null || noteLabel == null || diagram == null || keyboard == null) {
-        console.log("switch, somthing null", keyboard);
+    if (container == null || solButRow == null || noteLabel == null || diagram == null || keyboard == null ) {
+        console.log( "switch, somthing null", keyboard);
         return;
-    }
+    } 
     if (switchState == "noteToDia") {
         switchState = "diaToNote";
-        keyboard.style.display = '';
-        noteLabel.style.display = 'none';
+            keyboard.style.display = '';
+noteLabel.style.display = 'none';
         // container.insertBefore(solButRow, noteLabel);
         container.insertBefore(diagram, solButRow);
         dia.setFingerLabelType(FingerLabel.NONE);
-    }
-    else {
+    } else {
         switchState = "noteToDia";
         container.insertBefore(solButRow, diagram);
         container.insertBefore(noteLabel, solButRow);
         dia.setFingerLabelType(FingerLabel.NOTE);
+
         keyboard.style.display = 'none';
         noteLabel.style.display = '';
     }
     nextNote();
     // console.log( switchState );
-});
+})
+
+
 /////////^^^^^^^^^^^^^^^^^^^^^^^^
-var timeOnStart = 0;
-const scrollDiagramCanvas = document.getElementById('scroll-editor-diagram');
-const diagramCanvas = document.getElementById('editor-diagram');
-let dia = new Diagram(diagramCanvas, musicData.instrumentAt(0));
+var timeOnStart: number = 0;
+
+
+const scrollDiagramCanvas: HTMLElement | null = document.getElementById('scroll-editor-diagram');
+const diagramCanvas: HTMLCanvasElement | null = document.getElementById('editor-diagram') as HTMLCanvasElement;
+let dia: Diagram = new Diagram(diagramCanvas, musicData.instrumentAt(0) !);
 dia.setRoot(null);
 dia.setMouseClickBehaviour(MouseClickBehaviour.CALLBACK);
-function callbackOnMouseClick(_coord, _pitch) {
+
+function callbackOnMouseClick(_coord: FretboardCoord, _pitch: Pitch | null) {
     // console.log( "MyClick", _coord, _pitch );
-    if (_pitch == null)
-        return;
+    if (_pitch == null) return;
     if (switchState == "noteToDia") {
         checkSolution(p, _pitch);
-    }
-    else {
+    } else {
+
     }
 }
+
 dia.setCallbackOnMouseClick(callbackOnMouseClick);
 dia.update();
+
 window.addEventListener('load', function () {
     // console.log('loadDiaEditor loaded')
     adaptDiagramWidth(diagramCanvas, scrollDiagramCanvas);
-});
+})
 window.addEventListener('resize', function (event) {
     // console.log( "logic dia editor.resize", window.innerWidth, window.innerHeight)
     adaptDiagramWidth(diagramCanvas, scrollDiagramCanvas);
 }, true);
+
 var evalClosed = false;
+
 const evalLabel = document.getElementById("evalSol");
 const correctLabel = document.getElementById("labelCorrectNum");
 const wrongLabel = document.getElementById("labelWrongNum");
-var correctNum = 0;
-var wrongNum = 0;
-function checkSolution(_solution, _guess) {
+var correctNum: number = 0;
+var wrongNum: number = 0;
+
+function checkSolution(_solution: Pitch, _guess: Pitch | null) {
     // console.log( "checkSolution",  Date.now() - timeOnStart, evalClosed );
-    if (evalClosed)
-        return;
+    if (evalClosed) return;
     if (switchState == "noteToDia") {
         dia.setRoot(_solution);
         dia.update();
-    }
-    else {
-        if (noteLabel == null)
-            return;
+    } else {
+        if (noteLabel == null) return;
         noteLabel.innerHTML = p.name();
     }
-    if (_solution.name() == (_guess === null || _guess === void 0 ? void 0 : _guess.name())) {
+
+    if (_solution.name() == _guess?.name()) {
         correctNum++;
         if (evalLabel != null) {
             evalLabel.innerHTML = "Correct";
         }
-    }
-    else {
+    } else {
         wrongNum++;
         if (evalLabel != null) {
             evalLabel.innerHTML = "Wrong";
@@ -116,61 +139,69 @@ function checkSolution(_solution, _guess) {
     if (wrongLabel != null) {
         wrongLabel.innerHTML = wrongNum.toString();
     }
+
     // console.log( "checkSolution B",  Date.now() - timeOnStart );
     evalClosed = true;
     clearTimeout(timerNum);
     timerNum = setTimeout(nextNote, 2000);
 }
 /////////////////
-const noteLabel = document.getElementById("noteLabel");
-const solutionButton = document.getElementById("solutionButton");
-var pitches = [];
-var p = pitches[Math.floor(Math.random() * 12)];
-for (let i = 0; i < 12; i++) {
+const noteLabel: HTMLElement | null = document.getElementById("noteLabel");
+const solutionButton = document.getElementById("solutionButton")
+var pitches: Pitch[] = [];
+var p: Pitch = pitches[Math.floor(Math.random() * 12)] !;
+
+for (let i: number = 0; i < 12; i++) {
     if (musicDefinition.pitch(i) != null) {
-        pitches.push(musicDefinition.pitch(i));
+        pitches.push(musicDefinition.pitch(i) !);
     }
 }
-solutionButton === null || solutionButton === void 0 ? void 0 : solutionButton.addEventListener('click', function () {
+solutionButton?.addEventListener('click', function () {
     // console.log( "show Solution" );
     checkSolution(p, null);
-});
-const timerButton = document.getElementById("timerButton");
-const timerIntervall = document.getElementById("timerIntervall");
-const nextButton = document.getElementById("nextButton");
-nextButton === null || nextButton === void 0 ? void 0 : nextButton.addEventListener('click', nextNote);
+})
+
+const timerButton: HTMLInputElement | null = document.getElementById("timerButton") as HTMLInputElement | null;
+const timerIntervall: HTMLInputElement | null = document.getElementById("timerIntervall") as HTMLInputElement | null;
+const nextButton = document.getElementById("nextButton")
+nextButton?.addEventListener('click', nextNote);
+
 function nextNote() {
     // console.log( "next",  Date.now() - timeOnStart );
     evalClosed = false;
-    if (noteLabel == null)
-        return;
+    if (noteLabel == null) return;
+
     var lastP = p;
     while (p == lastP) {
-        p = pitches[Math.floor(Math.random() * 12)];
+        p = pitches[Math.floor(Math.random() * 12)] !;
     }
     lastP = p;
+
     if (switchState == "noteToDia") {
         noteLabel.innerHTML = p.name();
         dia.setRoot(null);
         dia.update();
-    }
-    else {
+    } else {
         noteLabel.innerHTML = "";
         dia.setRoot(p);
         dia.update();
     }
+
     if (evalLabel != null) {
         evalLabel.innerHTML = "?";
     }
-    if (timerButton === null || timerButton === void 0 ? void 0 : timerButton.checked) {
+
+    if (timerButton?.checked) {
         // setTimer();
-        if ((timerIntervall === null || timerIntervall === void 0 ? void 0 : timerIntervall.value) != undefined) {
+        if (timerIntervall?.value != undefined) {
             clearTimeout(timerNum);
-            timerNum = setTimeout(myTimer, 1000 * parseInt(timerIntervall === null || timerIntervall === void 0 ? void 0 : timerIntervall.value));
+            timerNum = setTimeout(myTimer, 1000 * parseInt(timerIntervall?.value));
         }
     }
 }
+
 // Timer
+
 function myTimer() {
     // console.log("myTimer",  Date.now() - timeOnStart );
     if (!evalClosed) {
@@ -180,44 +211,47 @@ function myTimer() {
     nextNote();
 }
 var timerNum = 0;
-timerIntervall === null || timerIntervall === void 0 ? void 0 : timerIntervall.addEventListener('change', function () {
-    if (timerButton === null || timerButton === void 0 ? void 0 : timerButton.checked) {
+
+timerIntervall?.addEventListener('change', function () {
+    if (timerButton?.checked) {
         // setTimer();
     }
-});
-timerButton === null || timerButton === void 0 ? void 0 : timerButton.addEventListener('click', function () {
+})
+
+timerButton?.addEventListener('click', function () {
     // console.log( timerButton.checked);
     if (timerButton.checked) {
         // setTimer();
         if (timeOnStart === 0) {
             timeOnStart = Date.now();
         }
-        if ((timerIntervall === null || timerIntervall === void 0 ? void 0 : timerIntervall.value) != undefined) {
+        if (timerIntervall?.value != undefined) {
             clearTimeout(timerNum);
-            timerNum = setTimeout(myTimer, 1000 * parseInt(timerIntervall === null || timerIntervall === void 0 ? void 0 : timerIntervall.value));
+            timerNum = setTimeout(myTimer, 1000 * parseInt(timerIntervall?.value));
         }
-    }
-    else {
+    } else {
         clearTimeout(timerNum);
         // console.log( intervallNum );
         // clearInterval(intervallNum);
     }
-});
-function callbackOnNotePress(_note) {
+
+})
+
+function callbackOnNotePress( _note : Pitch ) : void {
     // console.log( "fds", _note.name() );
     if (switchState == "noteToDia") {
-    }
-    else {
-        checkSolution(p, _note);
+    } else {
+        checkSolution(p, _note );
+
     }
 }
+
 import { setCallbackOnNotePress } from './pianoKeyboard.js';
-window.addEventListener('load', function () {
-    let elem = document.getElementById("noteLabel");
-    if (elem == null)
-        return;
+window.addEventListener('load', function (): void {
+    let elem: HTMLElement | null = document.getElementById("noteLabel");
+    if (elem == null) return;
     elem.style.opacity = "1";
     nextNote();
-    setCallbackOnNotePress(callbackOnNotePress);
+
+   setCallbackOnNotePress( callbackOnNotePress );
 });
-//# sourceMappingURL=logicLearnFretboard.js.map
