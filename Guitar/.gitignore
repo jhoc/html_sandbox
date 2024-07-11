@@ -1,17 +1,8 @@
 # ignore all files in obj
 built/**
-images/**
 *~
 
 
-<<<<<<< HEAD
-bin/
-bin/Sonautika
-=======
-bin/*
-!bin/data/
->>>>>>> Score_Layout
-googletest/
 
  Compiled Object files
 *.slo
