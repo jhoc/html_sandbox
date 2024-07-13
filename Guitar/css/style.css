@@ -32,6 +32,16 @@ html,
     text-align: center; */
 }
 
+.hor-center {
+  display: flex;
+  flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  border: 2px;
+  border-color: aqua;
+  margin: auto;
+}
+
 #menuheader {
   width: 100%;
 	float: left;
@@ -102,23 +112,7 @@ width: 100%;
   top: 0px;
 }
 
-dialog:not([open]) {
-  display: none;
-}
 
-/* Styling der geöffneten Popup-Box */
-dialog[open] { 
-  /* width: 20em;  */
-  /* background: #fffbf0;  */
-  /* border: thin solid #ffdec8; */
-  /* margin: 0; */
-  border: none;
-  border-radius: 0.25rem;
-  padding: var(--flexspacing);
-}
-dialog::backdrop {
-  background-color: hsla(0, 0%, 0%, 0.493);
-}
 
 #noteLabel {
   opacity: 0;

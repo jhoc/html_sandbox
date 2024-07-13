@@ -78,6 +78,22 @@ import {
     musicDefinition
 } from "../built/MusicDefinitions.js"
 
+export function resetKeyboardColors() {
+    const elemKey = document.getElementById("PianoKeyboard");
+    for (let i = 0; i < elemKey.children.length; i++) {
+        if( elemKey.children[ i ].className == "whiteKey" ) {
+            elemKey.children[ i ].style.background = '#fff'
+        } else {
+            elemKey.children[ i ].style.background = '#000'
+        }
+    }
+}
+
+export function setKeyboardKeyColor( _index, _color ) {
+    // console.log( "setKey", _index, _color );
+    const elemKey = document.getElementById("PianoKeyboard");
+    elemKey.children[ _index ].style.background = _color;
+}
 
 function htmlForKeyboardWithOctaves(numberOfOctaves, startOctave, showLabels, withShiftButtons, withNoteSelection, withClefSelection) {
     if (typeof (numberOfOctaves) === 'undefined') numberOfOctaves = 3
@@ -98,7 +114,7 @@ function htmlForKeyboardWithOctaves(numberOfOctaves, startOctave, showLabels, wi
     for (var i = 0; i < _displayedOctaves; i++) {
         if (showLabels) {
             keyhoardHTML += '\
-                <li class="whiteKey"><p>C' + (currentOctave + 1) + '</p></li>\n\
+                <li class="whiteKey"><p>C</p></li>\n\
                 <li class="blackKeySharp"><p>♯</p></li>\n'
         } else {
             keyhoardHTML += '\
@@ -107,16 +123,16 @@ function htmlForKeyboardWithOctaves(numberOfOctaves, startOctave, showLabels, wi
         }
 
         keyhoardHTML += '\
-                <li class="whiteKey"></li>\n\
+                <li class="whiteKey"><p>D</p></li>\n\
                 <li class="blackKeySharp"></li>\n\
-                <li class="whiteKey"></li>\n\
-                <li class="whiteKey"></li>\n\
+                <li class="whiteKey"><p>E</p></li>\n\
+                <li class="whiteKey"><p>F</p></li>\n\
                 <li class="blackKeySharp"></li>\n\
-                <li class="whiteKey"></li>\n\
+                <li class="whiteKey"><p>G</p></li>\n\
                 <li class="blackKeySharp"></li>\n\
-                <li class="whiteKey"></li>\n\
+                <li class="whiteKey"><p>A</p></li>\n\
                 <li class="blackKeySharp"></li>\n\
-                <li class="whiteKey"></li>\n'
+                <li class="whiteKey"><p>B</p></li>\n'
         currentOctave++
     }
     // for (var i = 0; i < _displayedOctaves; i++) {
@@ -165,22 +181,8 @@ function htmlForKeyboardWithOctaves(numberOfOctaves, startOctave, showLabels, wi
     html += '\
         </div>'
 
-
-    // if (withNoteSelection) {
-    //     html = htmlForNotesSelection() + '\n' + html
-    // }
-    // if (withClefSelection) {
-    //     html = htmlForClefSelection() + '\n' + html
-    // }
-
     return html;
 }
-
-
-
-
-
-
 
 function bindKeysToFunction(callback) {
     // console.log( "bindKeysToFunc" );
@@ -194,34 +196,6 @@ function bindKeysToFunction(callback) {
     }
 }
 
-
-// function raiseOctave() {
-//     _startOctave = Math.min(_startOctave + 1, MAX_OCTAVES - numberOfDisplayedOctaves() + 1)
-//     updateOctaveLabels()
-//     updateShiftOctaveButtonsEnabled()
-// }
-
-// function lowerOctave() {
-//     _startOctave = Math.max(_startOctave - 1, 0)
-//     updateOctaveLabels()
-//     updateShiftOctaveButtonsEnabled()
-// }
-
-// function updateShiftOctaveButtonsEnabled() {
-//     var isMax = _startOctave == MAX_OCTAVES - _displayedOctaves + 1
-//     var isMin = _startOctave == 0
-//     $("#raiseOctave").prop('disabled', isMax)
-//     $("#lowerOctave").prop('disabled', isMin)
-// }
-
-// function updateOctaveLabels() {
-//     $('.whiteKey>p').each(function (i, domLabel) {
-//         var label = $(domLabel)
-//         var currentOctave = _startOctave + 1 + i
-//         label.text("C" + currentOctave)
-//     })
-// }
-
 function limitToRange(number, min, max) {
     return Math.min(Math.max(min, number), max)
 }
@@ -234,13 +208,6 @@ export function setCallbackOnNotePress(_func) {
     bindKeysToFunction(callbackOnNotePress);
 }
 
-// function updatePreviewWithNote(_pitch ) {
-//     console.log("key pressed is " + _pitch.name())
-//     // plaineEasieCodes.push(paeNote)
-//     // updateNotesSVG()
-// }
-
-// $("#keyboardContainer").html(keyboardHTML)
 window.addEventListener('load', function () {
     const keyElem = document.getElementById("keyboardContainer")
     keyElem.style.display = 'none';

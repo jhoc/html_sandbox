@@ -24,24 +24,17 @@
 
 <body class="fullscreen">
     <script src="built/main.js"></script>
-    <!-- <script src="built/menuHeader.js" type="module"></script> -->
     <script src="built/genericMenuBar.js" type="module"></script>
     <script src="built/Diagram.js" type="module"></script>
-    <!-- <script src="built/DiagramSelector.js" type="module"></script> -->
-    <!-- <script src="built/diagramOptionsSelector.js" type="module"></script> -->
-    <!-- <script src="built/logicDiagramEditor.js" type="module"></script> -->
-    <!-- <script src="built/diagramList.js" type="module"></script> -->
     <script src="src/pianoKeyboard.js" type="module"></script>
     <script src="built/logicLearnFretboard.js" type="module"></script>
 
-
-    <!-- <jui-menuheader id="menuheader">menuHeader</jui-menuheader> -->
     <jui-genericMenuBar id="menuheader"></jui-genericMenuBar>
 
 <div id="container">
   
-    <h1 id="noteLabel" class="container">C</h1>
-    <div id="solutionParams" class="row">
+    <h1 id="noteLabel" class="hor-center">C</h1>
+    <div id="solutionParams" class="row hor-center">
         <button id="solutionButton"> Solution </button>
         <button id="nextButton"> Next </button>
         <input type="checkbox" id="timerButton">
@@ -54,9 +47,9 @@
             Guitar Diagram Canvas
         </canvas>
     </div>
-<div id="keyboardContainer" display="none">Piano Keyboard</div> <!-- this will hold the keyboard -->
+<div id="keyboardContainer" display="none" class="hor-center">Piano Keyboard</div> <!-- this will hold the keyboard -->
 
-    <div id="evaluation" class="row">
+    <div id="evaluation" class="row hor-center">
         <h1 id="evalSol">?</h1>
         <label>Hit:</label>
         <label id="labelCorrectNum">0</label>

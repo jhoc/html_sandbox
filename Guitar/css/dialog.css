@@ -1,0 +1,17 @@
+dialog:not([open]) {
+    display: none;
+  }
+  
+  /* Styling der geöffneten Popup-Box */
+  dialog[open] { 
+    /* width: 20em;  */
+    /* background: #fffbf0;  */
+    /* border: thin solid #ffdec8; */
+    /* margin: 0; */
+    border: none;
+    border-radius: 0.25rem;
+    padding: 1em;
+  }
+  dialog::backdrop {
+    background-color: hsla(0, 0%, 0%, 0.493);
+  }
