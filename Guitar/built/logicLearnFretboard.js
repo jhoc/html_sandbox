@@ -19,7 +19,7 @@ burgerMenu.addEventListener('click', function () {
     head.openMenu(burgerMenu);
 });
 var switchState = "noteToDia";
-const switchButton = head.createButton("Switchi", "");
+const switchButton = head.createButton("Switch", "");
 head.addHeaderRightIcon(switchButton);
 switchButton.addEventListener("click", function (_evt) {
     // return;
@@ -92,11 +92,13 @@ function checkSolution(_solution, _guess) {
     if (switchState == "noteToDia") {
         dia.setRoot(_solution);
         dia.update();
+        // setKeyboardKeyColor( p.pitch(), '#FF0000');
     }
     else {
         if (noteLabel == null)
             return;
         noteLabel.innerHTML = p.name();
+        setKeyboardKeyColor(p.pitch(), '#FF0000');
     }
     if (_solution.name() == (_guess === null || _guess === void 0 ? void 0 : _guess.name())) {
         correctNum++;
@@ -142,6 +144,7 @@ nextButton === null || nextButton === void 0 ? void 0 : nextButton.addEventListe
 function nextNote() {
     // console.log( "next",  Date.now() - timeOnStart );
     evalClosed = false;
+    resetKeyboardColors();
     if (noteLabel == null)
         return;
     var lastP = p;
@@ -211,7 +214,7 @@ function callbackOnNotePress(_note) {
         checkSolution(p, _note);
     }
 }
-import { setCallbackOnNotePress } from './pianoKeyboard.js';
+import { resetKeyboardColors, setCallbackOnNotePress, setKeyboardKeyColor } from './pianoKeyboard.js';
 window.addEventListener('load', function () {
     let elem = document.getElementById("noteLabel");
     if (elem == null)

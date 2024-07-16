@@ -10,7 +10,7 @@
         },
         {
             "type": "typescript",
-            "tsconfig": "tsconfig.json",
+            "tsconfig": "Guitar/tsconfig.json",
             "problemMatcher": [
                 "$tsc"
             ],

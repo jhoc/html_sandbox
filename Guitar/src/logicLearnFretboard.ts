@@ -249,7 +249,7 @@ function callbackOnNotePress( _note : Pitch ) : void {
     }
 }
 
-import { resetColors, resetKeyboardColors, setCallbackOnNotePress, setKeyboardKeyColor } from './pianoKeyboard.js';
+import { resetKeyboardColors, setCallbackOnNotePress, setKeyboardKeyColor } from './pianoKeyboard.js';
 window.addEventListener('load', function (): void {
     let elem: HTMLElement | null = document.getElementById("noteLabel");
     if (elem == null) return;

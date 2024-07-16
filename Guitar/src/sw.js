@@ -3,6 +3,7 @@ var filesToCache = [
   '/',
   '/index.html',
   '/css/style.css',
+  '/src/pianoKeyboard.js',
   '/built/main.js',
   '/built/Diagram.js',
   '/built/diagramList.js',
