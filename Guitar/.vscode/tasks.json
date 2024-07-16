@@ -4,11 +4,6 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "clear debug console",
-            "type": "shell",
-            "command": "echo hello",
-        },
-        {
             "type": "typescript",
             "tsconfig": "tsconfig.json",
             "problemMatcher": [
@@ -20,5 +15,24 @@
             },
             "label": "tsc: build - tsconfig.json"
         }
-    ]
+    ],
+    // "tasks": [
+    //     {
+    //         "label": "clear debug console",
+    //         "type": "shell",
+    //         "command": "echo hello",
+    //     },
+    //     {
+    //         "type": "typescript",
+    //         "tsconfig": "tsconfig.json",
+    //         "problemMatcher": [
+    //             "$tsc"
+    //         ],
+    //         "group": {
+    //             "kind": "build",
+    //             "isDefault": true
+    //         },
+    //         "label": "tsc: build - tsconfig.json"
+    //     }
+    // ]
 }

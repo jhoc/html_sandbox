@@ -1,5 +1,5 @@
 # ignore all files in obj
-#built/**
+built/**
 *~
 
 
