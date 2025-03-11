@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+<script src="header.js" type="text/javascript" defer></script>
   <head>
     <title>Audio Player</title>
     <style>
@@ -13,7 +14,7 @@
       }
 
       .TimeSlider {
-	  appearance: slider-horizontal;
+	  -webkit-appearance: slider-horizontal;
 	  writing-mode: bt-lr;
 	  height: 30px;
 	  width: 400px;
@@ -22,8 +23,7 @@
       }
 
       .volume-slider {
-	  /* -webkit-appearance: slider-vertical; */
-	  appearance: "writing-mode: vertical-lr; direction: rtl";
+	  -webkit-appearance: slider-vertical;
 	  writing-mode: bt-lr;
 	  height: 75px;
 	  margin: 0 10px;
@@ -36,9 +36,10 @@
   </head>
 
   <body>
+  <header-component></header-component>
     <form>
       <label for="directory">Wählen Sie ein Verzeichnis aus:</label>
-      <input type="file" id="directory">
+      <input type="file" id="directory" webkitdirectory directory>
     </form>
 
     <script>
@@ -48,65 +49,14 @@
       var audioElements = [];
       
       document.getElementById("directory").addEventListener("change", function () {
-	  var file = this.files[0];
-	console.log( file );
+	  var files = this.files;
+
 	  clearTrackUI();
 
-	  const reader = new FileReader();
-
-	reader.onload = (event) => {
-	const file = event.target.result;
-	const allLines = file.split(/\r\n|\n/);
-	// Reading line by line
-	let i = 0;
-	allLines.forEach((line) => {
-		loadAudioFromPath( line, i );
-		i++;
-	});
-
-  audioElements[0].addEventListener('timeupdate', function () {
-    	      var currentTime = audioElements[0].currentTime;
-    	      var duration = audioElements[0].duration;
-    	      var progress = (currentTime / duration) * 100;
-    	      document.getElementById("TimeSlider").value = progress;
-	  });
-	//   }
-};
-
-	reader.onerror = (event) => {
-		alert(event.target.error.name);
-	};
-
-	reader.readAsText(file);
-
-	//   for (var i = 0; i < files.length; i++) {
-	//       var audio = document.createElement("audio");
-	//       audio.src = URL.createObjectURL(files[i]);
-	//       audio.title = files[i].name;
-	//       audioElements.push(audio);
-	//       document.body.appendChild(audio);
-
-	//       addTrackUI(i, audio.title);
-	//       muteToggle.push( false );
-	//       soloToggle.push( false );
-	//   }
-
-	//   audioElements[0].addEventListener('timeupdate', function () {
-    // 	      var currentTime = audioElements[0].currentTime;
-    // 	      var duration = audioElements[0].duration;
-    // 	      var progress = (currentTime / duration) * 100;
-    // 	      document.getElementById("TimeSlider").value = progress;
-	//   });
-      });
-
-	  function loadAudioFromPath( path, i ) {
-		// console.log( i, path );
-		if( path === '' ) return;
-		getNameFromPath( path );
-
-		  var audio = document.createElement("audio");
-	      audio.src = path;
-	      audio.title = getNameFromPath( path );
+	  for (var i = 0; i < files.length; i++) {
+	      var audio = document.createElement("audio");
+	      audio.src = URL.createObjectURL(files[i]);
+	      audio.title = files[i].name;
 	      audioElements.push(audio);
 	      document.body.appendChild(audio);
 
@@ -115,16 +65,13 @@
 	      soloToggle.push( false );
 	  }
 
-function getNameFromPath( path ) {
-	// console.log( "getName:" + path );
-
-	let parts = path.split('/');
-
-// console.log(parts[6]); // Output: [ 'path', 'to', 'some', 'file' ]
-parts = parts[6].split('.');
-// console.log(parts[0]);
-return parts[0];
-}
+	  audioElements[0].addEventListener('timeupdate', function () {
+    	      var currentTime = audioElements[0].currentTime;
+    	      var duration = audioElements[0].duration;
+    	      var progress = (currentTime / duration) * 100;
+    	      document.getElementById("TimeSlider").value = progress;
+	  });
+      });
 
       function seek() {
 	  var seekto = audioElements[0].duration * (document.getElementById("TimeSlider").value / 100);
