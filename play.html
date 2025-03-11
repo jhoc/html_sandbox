@@ -1,292 +1,350 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
- <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-  <head>
-    <title>Audio Player</title>
-    <style>
-      audio {
-	  display: block;
-	  margin: 0 auto;
-	  padding: 10px;
-	  background-color: #f5f5f5;
-	  border-radius: 5px;
-      }
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <head>
+        <title>Audio Player</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <style>
+            audio {
+                display: block;
+                margin: 0 auto;
+                padding: 10px;
+                background-color: #f5f5f5;
+                border-radius: 5px;
+            }
 
-      .TimeSlider {
-	  appearance: slider-horizontal;
-	  writing-mode: bt-lr;
-	  height: 30px;
-	  width: 400px;
-	  margin: 0 10px;
+            .TimeSlider {
+                appearance: slider-horizontal;
+                writing-mode: bt-lr;
+                height: 30px;
+                width: 400px;
+                margin: 0 10px;
+            }
 
-      }
+            .volume-slider {
+                /* -webkit-appearance: slider-vertical; */
+                appearance: "writing-mode: vertical-lr; direction: rtl";
+                writing-mode: bt-lr;
+                height: 75px;
+                margin: 0 10px;
+            }
 
-      .volume-slider {
-	  /* -webkit-appearance: slider-vertical; */
-	  appearance: "writing-mode: vertical-lr; direction: rtl";
-	  writing-mode: bt-lr;
-	  height: 75px;
-	  margin: 0 10px;
-      }
+            .mute-button {
+                margin: 0 10px;
+            }
+        </style>
+    </head>
 
-      .mute-button {
-	  margin: 0 10px;
-      }
-    </style>
-  </head>
+    <body>
+        <form>
+            <label for="directory">Wählen Sie ein Verzeichnis aus:</label>
+            <input type="file" id="directory" />
+        </form>
 
-  <body>
-    <form>
-      <label for="directory">Wählen Sie ein Verzeichnis aus:</label>
-      <input type="file" id="directory">
-    </form>
+        <script>
+            var isPlaying = false;
+            var muteToggle = [];
+            var soloToggle = [];
+            var audioElements = [];
 
-    <script>
-		var isPlaying = false;
-      var muteToggle = [];
-      var soloToggle = [];
-      var audioElements = [];
-      
-      document.getElementById("directory").addEventListener("change", function () {
-	  var file = this.files[0];
-	console.log( file );
-	  clearTrackUI();
+            document
+                .getElementById("directory")
+                .addEventListener("change", function () {
+                    var file = this.files[0];
+                    console.log(file);
+                    clearTrackUI();
 
-	  const reader = new FileReader();
+                    const reader = new FileReader();
 
-	reader.onload = (event) => {
-	const file = event.target.result;
-	const allLines = file.split(/\r\n|\n/);
-	// Reading line by line
-	let i = 0;
-	allLines.forEach((line) => {
-		loadAudioFromPath( line, i );
-		i++;
-	});
+                    reader.onload = (event) => {
+                        const file = event.target.result;
+                        const allLines = file.split(/\r\n|\n/);
+                        // Reading line by line
+                        let i = 0;
+                        allLines.forEach((line) => {
+                            loadAudioFromPath(line, i);
+                            i++;
+                        });
 
-  audioElements[0].addEventListener('timeupdate', function () {
-    	      var currentTime = audioElements[0].currentTime;
-    	      var duration = audioElements[0].duration;
-    	      var progress = (currentTime / duration) * 100;
-    	      document.getElementById("TimeSlider").value = progress;
-	  });
-	//   }
-};
+                        audioElements[0].addEventListener(
+                            "timeupdate",
+                            function () {
+                                var currentTime = audioElements[0].currentTime;
+                                var duration = audioElements[0].duration;
+                                var progress = (currentTime / duration) * 100;
+                                document.getElementById("TimeSlider").value =
+                                    progress;
+                            },
+                        );
+                        //   }
+                    };
 
-	reader.onerror = (event) => {
-		alert(event.target.error.name);
-	};
+                    reader.onerror = (event) => {
+                        alert(event.target.error.name);
+                    };
 
-	reader.readAsText(file);
+                    reader.readAsText(file);
 
-	//   for (var i = 0; i < files.length; i++) {
-	//       var audio = document.createElement("audio");
-	//       audio.src = URL.createObjectURL(files[i]);
-	//       audio.title = files[i].name;
-	//       audioElements.push(audio);
-	//       document.body.appendChild(audio);
+                    //   for (var i = 0; i < files.length; i++) {
+                    //       var audio = document.createElement("audio");
+                    //       audio.src = URL.createObjectURL(files[i]);
+                    //       audio.title = files[i].name;
+                    //       audioElements.push(audio);
+                    //       document.body.appendChild(audio);
 
-	//       addTrackUI(i, audio.title);
-	//       muteToggle.push( false );
-	//       soloToggle.push( false );
-	//   }
+                    //       addTrackUI(i, audio.title);
+                    //       muteToggle.push( false );
+                    //       soloToggle.push( false );
+                    //   }
 
-	//   audioElements[0].addEventListener('timeupdate', function () {
-    // 	      var currentTime = audioElements[0].currentTime;
-    // 	      var duration = audioElements[0].duration;
-    // 	      var progress = (currentTime / duration) * 100;
-    // 	      document.getElementById("TimeSlider").value = progress;
-	//   });
-      });
+                    //   audioElements[0].addEventListener('timeupdate', function () {
+                    // 	      var currentTime = audioElements[0].currentTime;
+                    // 	      var duration = audioElements[0].duration;
+                    // 	      var progress = (currentTime / duration) * 100;
+                    // 	      document.getElementById("TimeSlider").value = progress;
+                    //   });
+                });
 
-	  function loadAudioFromPath( path, i ) {
-		// console.log( i, path );
-		if( path === '' ) return;
-		getNameFromPath( path );
+            function loadAudioFromPath(path, i) {
+                // console.log( i, path );
+                if (path === "") return;
+                getNameFromPath(path);
 
-		  var audio = document.createElement("audio");
-	      audio.src = path;
-	      audio.title = getNameFromPath( path );
-	      audioElements.push(audio);
-	      document.body.appendChild(audio);
+                var audio = document.createElement("audio");
+                audio.src = path;
+                audio.title = getNameFromPath(path);
+                audioElements.push(audio);
+                document.body.appendChild(audio);
 
-	      addTrackUI(i, audio.title);
-	      muteToggle.push( false );
-	      soloToggle.push( false );
-	  }
+                addTrackUI(i, audio.title);
+                muteToggle.push(false);
+                soloToggle.push(false);
+            }
 
-function getNameFromPath( path ) {
-	// console.log( "getName:" + path );
+            function getNameFromPath(path) {
+                // console.log( "getName:" + path );
 
-	let parts = path.split('/');
+                let parts = path.split("/");
 
-// console.log(parts[6]); // Output: [ 'path', 'to', 'some', 'file' ]
-parts = parts[6].split('.');
-// console.log(parts[0]);
-return parts[0];
-}
+                // console.log(parts[6]); // Output: [ 'path', 'to', 'some', 'file' ]
+                parts = parts[6].split(".");
+                // console.log(parts[0]);
+                return parts[0];
+            }
 
-      function seek() {
-	  var seekto = audioElements[0].duration * (document.getElementById("TimeSlider").value / 100);
-          audioElements[0].currentTime = seekto;
-	  for (var i = 0; i < audioElements.length; i++) {
-	      audioElements[i].currentTime = seekto;
-	  }
-      }		
+            function seek() {
+                var seekto =
+                    audioElements[0].duration *
+                    (document.getElementById("TimeSlider").value / 100);
+                audioElements[0].currentTime = seekto;
+                for (var i = 0; i < audioElements.length; i++) {
+                    audioElements[i].currentTime = seekto;
+                }
+            }
 
-      function playAudio() {
-		isPlaying = !isPlaying;
-	  for (var i = 0; i < audioElements.length; i++) {
-	    if( isPlaying ) { 
-			audioElements[i].play();
-		} else {
-			audioElements[i].pause();
-		}
-	  }
-      }
+            function playAudio() {
+                isPlaying = !isPlaying;
+                for (var i = 0; i < audioElements.length; i++) {
+                    if (isPlaying) {
+                        audioElements[i].play();
+                    } else {
+                        audioElements[i].pause();
+                    }
+                }
+            }
 
-      function stopAudio() {
-		isPlaying = false;
-	  for (var i = 0; i < audioElements.length; i++) {
-	      audioElements[i].pause();
-		  audioElements[i].currentTime = 0;
-	  }
-      }
+            function stopAudio() {
+                isPlaying = false;
+                for (var i = 0; i < audioElements.length; i++) {
+                    audioElements[i].pause();
+                    audioElements[i].currentTime = 0;
+                }
+            }
 
-      function setVolume() {
-	  for (var i = 0; i < audioElements.length; i++) {
-	      audioElements[i].volume = document.getElementById("volume" + (i)).value;
-	  }
-      }
+            function setVolume() {
+                for (var i = 0; i < audioElements.length; i++) {
+                    audioElements[i].volume = document.getElementById(
+                        "volume" + i,
+                    ).value;
+                }
+            }
 
-      function muteAudio(index) {
-	  muteToggle[index] = !muteToggle[index];
-	  if( !soloToggle[index] ) {
-	 	 audioElements[index].muted = muteToggle[index];
-	  }
-	  var color = '#555555';
-	  if( muteToggle[index] ) {
-	      color = '#00FFFF';
-	  }
-	  document.getElementById("mute" + (index)).style.background=color;
-      }
+            function muteAudio(index) {
+                muteToggle[index] = !muteToggle[index];
+                if (!soloToggle[index]) {
+                    audioElements[index].muted = muteToggle[index];
+                }
+                var color = "#555555";
+                if (muteToggle[index]) {
+                    color = "#00FFFF";
+                }
+                document.getElementById("mute" + index).style.background =
+                    color;
+            }
 
-      function soloAudio(index) {
-	  soloToggle[index] = !soloToggle[index];
-	  var color = '#555555';
+            function soloAudio(index) {
+                soloToggle[index] = !soloToggle[index];
+                var color = "#555555";
 
-	  if( soloToggle[index] ) {
-	      color = '#00FFFF';
-	      audioElements[index].muted = false;
-	      for (var i = 0; i < audioElements.length; i++) {
-		  if( i === index ) continue;
-		  audioElements[i].muted = true;
-		  soloToggle[i] = false;
-		  //document.getElementById("mute" + (i)).style.background='#555555'; 
-		  document.getElementById("solo" + (i)).style.background='#555555';
-		  audioElements[i].muted = true; 
-		}
-	     
-	      // 
-	      document.getElementById("solo" + (index)).style.background=color;
-	  } else {
-	      for (var i = 0; i < audioElements.length; i++) {
-		  audioElements[i].muted = muteToggle[i];
-		  soloToggle[i] = false;
-		  document.getElementById("solo" + (i)).style.background='#555555';
-	      }
-	    //  document.getElementById("solo" + (index)).style.background=color;
-	  }
-      }
+                if (soloToggle[index]) {
+                    color = "#00FFFF";
+                    audioElements[index].muted = false;
+                    for (var i = 0; i < audioElements.length; i++) {
+                        if (i === index) continue;
+                        audioElements[i].muted = true;
+                        soloToggle[i] = false;
+                        //document.getElementById("mute" + (i)).style.background='#555555';
+                        document.getElementById("solo" + i).style.background =
+                            "#555555";
+                        audioElements[i].muted = true;
+                    }
 
-      function clearTrackUI() {
-	  audioElements = [];
-	  muteToggle = [];
-	  soloToggle = [];
+                    //
+                    document.getElementById("solo" + index).style.background =
+                        color;
+                } else {
+                    for (var i = 0; i < audioElements.length; i++) {
+                        audioElements[i].muted = muteToggle[i];
+                        soloToggle[i] = false;
+                        document.getElementById("solo" + i).style.background =
+                            "#555555";
+                    }
+                    //  document.getElementById("solo" + (index)).style.background=color;
+                }
+            }
 
-	  const elem = document.getElementById("Mixer");
-	  while (elem.lastChild) {
-	      elem.removeChild(elem.lastChild);
-	  }
-      }
+            function clearTrackUI() {
+                audioElements = [];
+                muteToggle = [];
+                soloToggle = [];
 
-      function addTrackUI(index, title) {
-	  var div = document.createElement("div");
+                const elem = document.getElementById("Mixer");
+                while (elem.lastChild) {
+                    elem.removeChild(elem.lastChild);
+                }
+            }
 
-	  div.setAttribute("style", "display: flex; flex-direction: column;");
-	  var label = document.createElement("label");
-	  label.setAttribute("for", "volume1");
-	  //label.innerHTML = `Track ${index}:`;
-	  label.innerHTML = title;
-	  div.appendChild(label);
-	  var input = document.createElement("input");
-	  input.setAttribute("type", "range");
-	  input.setAttribute("id", `volume${index}`);
-	  input.setAttribute("name", `volume${index}`);
-	  input.setAttribute("min", "0");
-	  input.setAttribute("max", "1");
-	  input.setAttribute("step", "0.01");
-	  input.setAttribute("value", "1");
-	  input.setAttribute("class", "volume-slider");
-	  input.setAttribute("oninput", "setVolume()");
-	  div.appendChild(input);
-	  var muteButton = document.createElement("button");
-	  muteButton.setAttribute("class", "mute-button");
-	  muteButton.style.background='#555555'
-	  muteButton.setAttribute("id", `mute${index}`);
-	  muteButton.setAttribute("onclick", `muteAudio(${index})`);
-	  muteButton.innerHTML = "Mute";
-	  div.appendChild(muteButton);
-	  var soloButton = document.createElement("button");
-	  soloButton.setAttribute("class", "mute-button");
-	  soloButton.style.background='#555555'
-	  soloButton.setAttribute("id", `solo${index}`);
-	  soloButton.setAttribute("onclick", `soloAudio(${index})`);
-	  soloButton.innerHTML = "Solo";
-	  div.appendChild(soloButton);
+            function addTrackUI(index, title) {
+                var div = document.createElement("div");
 
+                div.setAttribute(
+                    "style",
+                    "display: flex; flex-direction: column;",
+                );
+                var label = document.createElement("label");
+                label.setAttribute("for", "volume1");
+                //label.innerHTML = `Track ${index}:`;
+                label.innerHTML = title;
+                div.appendChild(label);
+                var input = document.createElement("input");
+                input.setAttribute("type", "range");
+                input.setAttribute("id", `volume${index}`);
+                input.setAttribute("name", `volume${index}`);
+                input.setAttribute("min", "0");
+                input.setAttribute("max", "1");
+                input.setAttribute("step", "0.01");
+                input.setAttribute("value", "1");
+                input.setAttribute("class", "volume-slider");
+                input.setAttribute("oninput", "setVolume()");
+                div.appendChild(input);
+                var muteButton = document.createElement("button");
+                muteButton.setAttribute("class", "mute-button");
+                muteButton.style.background = "#555555";
+                muteButton.setAttribute("id", `mute${index}`);
+                muteButton.setAttribute("onclick", `muteAudio(${index})`);
+                muteButton.innerHTML = "Mute";
+                div.appendChild(muteButton);
+                var soloButton = document.createElement("button");
+                soloButton.setAttribute("class", "mute-button");
+                soloButton.style.background = "#555555";
+                soloButton.setAttribute("id", `solo${index}`);
+                soloButton.setAttribute("onclick", `soloAudio(${index})`);
+                soloButton.innerHTML = "Solo";
+                div.appendChild(soloButton);
 
-	  //document.body.appendChild(div);
+                //document.body.appendChild(div);
 
-	  const elem = document.getElementById("Mixer");
-	  elem.appendChild(div);
-      }
+                const elem = document.getElementById("Mixer");
+                elem.appendChild(div);
+            }
 
-      //document.getElementById("TimeSlider").addEventListener("mousedown", function (event) { seeking = true; seek(event); });
-      //document.getElementById("TimeSlider").addEventListener("mousemove", function (event) { seek(event); });
-      //document.getElementById("TimeSlider").addEventListener("mouseup", function () { seeking = false; });
-    </script>
+            //document.getElementById("TimeSlider").addEventListener("mousedown", function (event) { seeking = true; seek(event); });
+            //document.getElementById("TimeSlider").addEventListener("mousemove", function (event) { seek(event); });
+            //document.getElementById("TimeSlider").addEventListener("mouseup", function () { seeking = false; });
+        </script>
 
-    <button onclick="playAudio()">Play</button>
-    <button onclick="stopAudio()">Stop</button>
+        <button onclick="playAudio()">Play</button>
+        <button onclick="stopAudio()">Stop</button>
 
-    <input type="range" id="TimeSlider" name="TimeSlider" min="0" max="100" step="0.1" value="0" class="TimeSlider" onInput="seek()">
+        <input
+            type="range"
+            id="TimeSlider"
+            name="TimeSlider"
+            min="0"
+            max="100"
+            step="0.1"
+            value="0"
+            class="TimeSlider"
+            onInput="seek()"
+        />
 
-    <div id="Mixer" style="display: flex; flex-direction: row;">
-      <div style="display: flex; flex-direction: column;">
-	<label for="volume1">Track 1:</label>
-	<input type="range" id="volume1" name="volume1" min="0" max="1" step="0.1" value="1" class="volume-slider"
-	       oninput="setVolume()">
-	<button class="mute-button" onclick="muteAudio(0)">Mute</button>
-	<button class="mute-button" onclick="unmuteAudio(0)">Unmute</button>
-      </div>
+        <div id="Mixer" style="display: flex; flex-direction: row">
+            <div style="display: flex; flex-direction: column">
+                <label for="volume1">Track 1:</label>
+                <input
+                    type="range"
+                    id="volume1"
+                    name="volume1"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value="1"
+                    class="volume-slider"
+                    oninput="setVolume()"
+                />
+                <button class="mute-button" onclick="muteAudio(0)">Mute</button>
+                <button class="mute-button" onclick="unmuteAudio(0)">
+                    Unmute
+                </button>
+            </div>
 
-      <div style="display: flex; flex-direction: column;">
-	<label for="volume2">Track 2:</label>
-	<input type="range" id="volume2" name="volume2" min="0" max="1" step="0.1" value="1" class="volume-slider"
-	       oninput="setVolume()">
-	<button class="mute-button" onclick="muteAudio(1)">Mute</button>
-	<button class="mute-button" onclick="unmuteAudio(1)">Unmute</button>
-      </div>
+            <div style="display: flex; flex-direction: column">
+                <label for="volume2">Track 2:</label>
+                <input
+                    type="range"
+                    id="volume2"
+                    name="volume2"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value="1"
+                    class="volume-slider"
+                    oninput="setVolume()"
+                />
+                <button class="mute-button" onclick="muteAudio(1)">Mute</button>
+                <button class="mute-button" onclick="unmuteAudio(1)">
+                    Unmute
+                </button>
+            </div>
 
-      <div style="display: flex; flex-direction: column;">
-	<label for="volume3">Track 3:</label>
-	<input type="range" id="volume3" name="volume3" min="0" max="1" step="0.1" value="1" class="volume-slider"
-	       oninput="setVolume()">
-	<button class="mute-button" onclick="muteAudio(2)">Mute</button>
-	<button class="mute-button" onclick="unmuteAudio(2)">Unmute</button>
-      </div>
-    </div>
-  </body>
-
+            <div style="display: flex; flex-direction: column">
+                <label for="volume3">Track 3:</label>
+                <input
+                    type="range"
+                    id="volume3"
+                    name="volume3"
+                    min="0"
+                    max="1"
+                    step="0.1"
+                    value="1"
+                    class="volume-slider"
+                    oninput="setVolume()"
+                />
+                <button class="mute-button" onclick="muteAudio(2)">Mute</button>
+                <button class="mute-button" onclick="unmuteAudio(2)">
+                    Unmute
+                </button>
+            </div>
+        </div>
+    </body>
 </html>
